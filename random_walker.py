@@ -185,7 +185,7 @@ class RandomWalker:
                 ax = fig.add_subplot(111)
 
             positions = [pos[0] for pos in positions]
-            ax.plot(range(len(positions)), positions, marker='o', markersize=1, alpha=0.3)
+            ax.plot(range(len(positions)), positions, marker='o', markersize=1.5, alpha=0.4)
             ax.set_title('Random Walker 1D')
             ax.set_xlabel('Step')
             ax.set_ylabel('Position')
@@ -195,7 +195,7 @@ class RandomWalker:
                 ax = fig.add_subplot(111)
 
             x, y = zip(*positions)
-            ax.plot(x, y, marker='o', markersize=1, alpha=0.3)
+            ax.plot(x, y, marker='o', markersize=1.5, alpha=0.4)
             ax.set_title('Random Walker 2D')
             ax.set_xlabel('X-axis')
             ax.set_ylabel('Y-axis')
@@ -205,7 +205,7 @@ class RandomWalker:
                 ax = fig.add_subplot(111, projection='3d')
 
             x, y, z = zip(*positions)
-            ax.plot(x, y, z, marker='o', markersize=1, alpha=0.3)
+            ax.plot(x, y, z, marker='o', markersize=1.5, alpha=0.4)
             ax.set_title(f'Random Walker {self.ndim}D')
             ax.set_xlabel('X-axis')
             ax.set_ylabel('Y-axis')
