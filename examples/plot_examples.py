@@ -1,6 +1,6 @@
 from typing import List
 import matplotlib.pyplot as plt
-from random_walker import RandomWalker
+from src.random_walker import RandomWalker
 
 # Configuration variables
 REPRODUCIBLE = True

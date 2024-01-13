@@ -1,7 +1,7 @@
 import matplotlib
 from matplotlib.animation import FuncAnimation
 from matplotlib import pyplot as plt
-from random_walker import RandomWalker
+from src.random_walker import RandomWalker
 from typing import List, Tuple
 
 matplotlib.use("TkAgg")
