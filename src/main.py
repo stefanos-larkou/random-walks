@@ -3,8 +3,8 @@ import matplotlib
 from matplotlib import pyplot as plt
 from matplotlib.animation import FuncAnimation
 import tkinter as tk
-from tkinter import ttk
-from tkinter import messagebox
+from tkinter import ttk, messagebox
+import TKinterModernThemes as TKMT
 from typing import List, Tuple
 from random_walker import RandomWalker
 
@@ -26,7 +26,6 @@ def update(frame: int, ax: plt.Axes, rwalkers: List[RandomWalker], stable_lims: 
     - List[plt.Line2D]: List of artists representing the plotted elements.
     """
     artists = []
-    ax.clear()
 
     for rwalker in rwalkers:
         rwalker.plot_track(ax, frame, stable_lims)
@@ -68,15 +67,30 @@ def run_animation(rwalkers: List[RandomWalker], ndim: int, nsteps: int, stable_l
     - nsteps (int):                  The number of steps in each random walk.
     - stable_lims (bool):            Whether to keep the axes limits constant when animating or not.
     """
+    # Create plot
     fig = plt.figure()
     ax = fig.add_subplot(111, projection='3d') if ndim == 3 else fig.add_subplot(111)
 
+    # Set title and labels
+    ax.set_title(f'Random Walk - {ndim}D')
+    if ndim == 1:
+        ax.set_xlabel('Step')
+        ax.set_ylabel('x')
+    elif ndim == 2:
+        ax.set_xlabel('x')
+        ax.set_ylabel('y')
+    elif ndim == 3:
+        ax.set_xlabel('x')
+        ax.set_ylabel('y')
+        ax.set_zlabel('z')
+
+    # Run the animation
     animation = FuncAnimation(
         fig,
         update,
-        fargs=(ax, rwalkers, stable_lims,),
+        fargs=(ax, rwalkers, stable_lims),
         frames=nsteps,
-        interval=min(1 / nsteps, 0.5),
+        interval=min(1 / (nsteps * 2), 0.5),
         repeat=False
     )
 
@@ -100,6 +114,11 @@ class App:
 
     - seed_label (ttk.Label):       Seed input label stored to toggle visibility.
     - seed_entry (ttk.Entry):       Seed input stored to toggle visibility.
+
+    Methods:
+    - create_widgets() -> None: Create GUI widgets for the random walk parameter input.
+    - toggle_seed_entry() -> None: Toggle visibility of seed input based on the reproducibility checkbox.
+    - run_simulations() -> None: Perform some input validation and run random walker simulations based on user input.
     """
     def __init__(self, root: tk.Tk) -> None:
         """
@@ -129,7 +148,7 @@ class App:
         """
         Create GUI widgets for the random walk parameter input.
         """
-        ttk.Style().configure("TLabel", padding=(0, 3))
+        ttk.Style().configure("TLabel", padding=(0, 8))
         ttk.Style().configure("TButton", padding=(10, 10))
 
         ttk.Label(self.root, text="Reproducible:").grid(row=0, column=0, sticky="w")
@@ -189,8 +208,7 @@ class App:
             return
 
         np.random.seed()
-        seeds = [i + self.seed_start.get() for i in range(self.nsteps.get())] if self.reproducible else [-1] * self.nsteps.get()
-
+        seeds = [i + self.seed_start.get() for i in range(self.nsteps.get())] if self.reproducible.get() else [-1] * self.nsteps.get()
         rwalkers = run_simulations(eval(self.start.get()), self.ndim.get(), seeds, self.nwalkers.get(), self.nsteps.get())
         run_animation(rwalkers, self.ndim.get(), self.nsteps.get(), self.stable_lims.get())
 
@@ -244,10 +262,13 @@ class App:
 
 
 def main():
-    root = tk.Tk()
-    App(root)
-    root.resizable(False, False)
-    root.mainloop()
+    window = TKMT.ThemedTKinterFrame("Random Walk Simulation", "azure", "light")
+    icon_path = 'src\\images\\icon.ico'
+    window_icon = tk.PhotoImage(file=icon_path)
+    window.root.tk.call('wm', 'iconphoto', window.root._w, window_icon)
+    window.root.resizable(False, False)
+    App(window.root)
+    window.root.mainloop()
 
 
 if __name__ == "__main__":
