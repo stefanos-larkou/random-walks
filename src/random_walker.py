@@ -1,3 +1,4 @@
+import matplotlib.lines
 import matplotlib.pyplot as plt
 import numpy as np
 from typing import List, Tuple, Optional
@@ -14,12 +15,16 @@ class RandomWalker:
     - seed (Optional[int]):      The random seed for reproducibility. Default is -1, indicating no seed.
 
     Attributes:
-    - ndim (int):                      The number of dimensions the walker can move in.
+    - ndim (int):                                      The number of dimensions the walker can move in.
     - track_data (List[Tuple[Tuple[float, ...], float, float]]):
-                                       A list containing information about the walker's position, distance from the
-                                       start, and distance from the origin during each step.
-    - start (np.ndarray):              The starting position of the walker.
-    - offsets (List[Tuple[int, ...]]): The possible step offsets in each dimension.
+                                                       A list containing information about the walker's position,
+                                                       distance from the start, and distance from the origin during each
+                                                       step.
+    - start (np.ndarray):                              The starting position of the walker.
+    - offsets (List[Tuple[int, ...]]):                 The possible step offsets in each dimension.
+    - line (matplotlib.lines.Line2D):                  The line to be plotted. It is none until plot_track() is called.
+    - markers (matplotlib.collections.PathCollection): The scatter points to be plotted. None until plot_track() is
+                                                       called.
 
     Methods:
     - random_step(position: Tuple[float, ...]) -> Tuple[float, ...]:
@@ -58,6 +63,9 @@ class RandomWalker:
         self.track_data = []
         self.start = np.asarray(start)
         self.track_data.append((start, self.distance_from_origin(start), 0.))
+
+        self.line = None
+        self.markers = None
 
         # Set seed if given
         if seed > 0:
@@ -188,23 +196,33 @@ class RandomWalker:
 
         if self.ndim == 1:
             # Unpack positions
-            positions = [pos[0] for pos in positions]
+            x = [pos[0] for pos in positions]
 
-            # Set constant ylim if stable_lims = True
+            # Set constant axes limits
             if stable_lims:
-                ax.set_xlim(0, len(positions))
-                ax.set_ylim(min(min(positions) - 1, ax.get_ylim()[0]), max(max(positions) + 1, ax.get_ylim()[1]))
+                ax.set_xlim(0, len(x))
+                ax.set_ylim(min(min(x) - 1, ax.get_ylim()[0]), max(max(x) + 1, ax.get_ylim()[1]))
 
             # Filter positions by frame if animating
             if frame is not None:
-                positions = positions[:frame + 1]
+                x = x[:frame + 1]
 
-            # Plot the random walk
-            ax.plot(range(len(positions)), positions, alpha=0.7)
-            ax.scatter(range(len(positions)), positions, color='r', marker='D', s=8, alpha=0.2)
-            ax.set_title(f'Random Walk - {self.ndim}D')
-            ax.set_xlabel('Step')
-            ax.set_ylabel('x')
+            # Set axes limits according to filtered data if stable_lims = False
+            if not stable_lims:
+                ax.set_xlim(0, len(x))
+                ax.set_ylim(min(min(x) - 1, ax.get_ylim()[0]), max(max(x) + 1, ax.get_ylim()[1]))
+
+            # If no line is already present, create it
+            if self.line is None:
+                self.line, = ax.plot([], [], alpha=0.7)
+
+            # If no markers are already present, create them
+            if self.markers is None:
+                self.markers = ax.scatter([], [], color='r', marker='D', s=8, alpha=0.2)
+
+            # Update the line and markers with the new positions
+            self.line.set_data(range(len(x)), x)
+            self.markers.set_offsets(np.column_stack([range(len(x)), x]))
         elif self.ndim == 2:
             # Unpack positions
             x, y = zip(*positions)
@@ -218,12 +236,22 @@ class RandomWalker:
             if frame is not None:
                 x, y = x[:frame + 1], y[:frame + 1]
 
-            # Plot the random walk
-            ax.plot(x, y, alpha=0.7)
-            ax.scatter(x, y, color='r', marker='D', s=8, alpha=0.2)
-            ax.set_title(f'Random Walk - {self.ndim}D')
-            ax.set_xlabel('x')
-            ax.set_ylabel('y')
+            # Set axes limits according to filtered data if stable_lims = False
+            if not stable_lims:
+                ax.set_xlim(min(min(x) - 1, ax.get_xlim()[0]), max(max(x) + 1, ax.get_xlim()[1]))
+                ax.set_ylim(min(min(y) - 1, ax.get_ylim()[0]), max(max(y) + 1, ax.get_ylim()[1]))
+
+            # If no line is already present, create it
+            if self.line is None:
+                self.line, = ax.plot([], [], alpha=0.7)
+
+            # If no markers are already present, create them
+            if self.markers is None:
+                self.markers = ax.scatter([], [], color='r', marker='D', s=8, alpha=0.2)
+
+            # Update the line and markers with the new positions
+            self.line.set_data(x, y)
+            self.markers.set_offsets(np.column_stack([x, y]))
         elif self.ndim == 3:
             # Unpack positions
             x, y, z = zip(*positions)
@@ -238,9 +266,15 @@ class RandomWalker:
             if frame is not None:
                 x, y, z = x[:frame + 1], y[:frame + 1], z[:frame + 1]
 
-            # Plot the random walk
-            ax.plot(x, y, z, alpha=0.7)
-            ax.set_title(f'Random Walk - {self.ndim}D')
-            ax.set_xlabel('x')
-            ax.set_ylabel('y')
-            ax.set_zlabel('z')
+            # Set axes limits according to filtered data if stable_lims = False
+            if not stable_lims:
+                ax.set_xlim(min(min(x) - 1, ax.get_xlim()[0]), max(max(x) + 1, ax.get_xlim()[1]))
+                ax.set_ylim(min(min(y) - 1, ax.get_ylim()[0]), max(max(y) + 1, ax.get_ylim()[1]))
+                ax.set_zlim(min(min(z) - 1, ax.get_zlim()[0]), max(max(z) + 1, ax.get_zlim()[1]))
+
+            # If no line is already present, create it
+            if self.line is None:
+                self.line, = ax.plot([], [], alpha=0.7)
+
+            # Update the line with the new positions
+            self.line.set_data_3d(x, y, z)
