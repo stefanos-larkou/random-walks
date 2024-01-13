@@ -13,6 +13,19 @@ matplotlib.use("TkAgg")
 
 
 def update(frame: int, ax: plt.Axes, rwalkers: List[RandomWalker], stable_lims: bool) -> List[plt.Line2D]:
+    """
+    Update function for the animation. Called by matplotlib's FuncAnimation to update the plot for each frame of the
+    animation.
+
+    Parameters:
+    - frame (int):                   The current animation frame number.
+    - ax (plt.Axes):                 The axes on which to plot.
+    - rwalkers (List[RandomWalker]): List of RandomWalker instances to visualize.
+    - stable_lims (bool):            Whether to keep the axes limits constant when animating or not.
+
+    Returns:
+    - List[plt.Line2D]: List of artists representing the plotted elements.
+    """
     artists = []
     ax.clear()
 
@@ -23,8 +36,20 @@ def update(frame: int, ax: plt.Axes, rwalkers: List[RandomWalker], stable_lims: 
     return artists
 
 
-def run_simulations(start: Tuple[float, ...], ndim: int, seed: List[int], nwalkers: int, nsteps: int) -> List[
-    RandomWalker]:
+def run_simulations(start: Tuple[float, ...], ndim: int, seed: List[int], nwalkers: int, nsteps: int) -> List[RandomWalker]:
+    """
+    Run random walker simulations.
+
+    Parameters:
+    - start (Tuple[float, ...]): The starting position of the walkers.
+    - ndim (int):                The number of dimensions for the walkers.
+    - seed (List[int]):          List of random seeds for reproducibility.
+    - nwalkers (int):            The number of random walks to simulate.
+    - nsteps (int):              The number of steps in each random walk.
+
+    Returns:
+    - List[RandomWalker]: List of RandomWalker objects.
+    """
     rwalkers = []
     for i in range(nwalkers):
         rwalker = RandomWalker(start=start, ndim=ndim, seed=seed[i])
@@ -35,6 +60,15 @@ def run_simulations(start: Tuple[float, ...], ndim: int, seed: List[int], nwalke
 
 
 def run_animation(rwalkers: List[RandomWalker], ndim: int, nsteps: int, stable_lims: bool) -> None:
+    """
+    Run the animation of random walker simulations.
+
+    Parameters:
+    - rwalkers (List[RandomWalker]): List of RandomWalker instances to visualize.
+    - ndim (int):                    The number of dimensions for the walkers.
+    - nsteps (int):                  The number of steps in each random walk.
+    - stable_lims (bool):            Whether to keep the axes limits constant when animating or not.
+    """
     fig = plt.figure()
     ax = fig.add_subplot(111, projection='3d') if ndim == 3 else fig.add_subplot(111)
 
@@ -51,7 +85,30 @@ def run_animation(rwalkers: List[RandomWalker], ndim: int, nsteps: int, stable_l
 
 
 class App:
-    def __init__(self, root):
+    """
+    GUI application for the random walk simulation.
+
+    Attributes:
+    - root (tk.Tk):                 Tkinter root window.
+    - reproducible (tk.BooleanVar): Whether to set seeds to the random walks for a reproducible result.
+    - stable_lims (tk.BooleanVar):  Whether to keep axes limits constant or not.
+    - ndim (tk.IntVar):             Dimensions of the random walk.
+    - start (tk.StringVar):         Common starting position of the random walks.
+    - seed_start (tk.IntVar):       If reproducible is true, the seeds set to the random walks start from this value and
+                                    increment by 1 for each random walk.
+    - nsteps (tk.IntVar):           The number of steps of the random walks.
+    - nwalkers (tk.IntVar):         The number of RandomWalker instances to create.
+
+    - seed_label (ttk.Label):       Seed input label stored to toggle visibility.
+    - seed_entry (ttk.Entry):       Seed input stored to toggle visibility.
+    """
+    def __init__(self, root: tk.Tk) -> None:
+        """
+        Initialize the GUI application for the random walk simulation.
+
+        Parameters:
+        - root (tk.Tk): Tkinter root window.
+        """
         self.root = root
         self.root.title("Random Walker Simulation")
 
@@ -69,7 +126,10 @@ class App:
 
         self.create_widgets()
 
-    def create_widgets(self):
+    def create_widgets(self) -> None:
+        """
+        Create GUI widgets for the random walk parameter input.
+        """
         ttk.Style().configure("TLabel", padding=(0, 3))
         ttk.Style().configure("TButton", padding=(10, 10))
 
@@ -98,7 +158,10 @@ class App:
 
         ttk.Button(self.root, text="Run Simulations", command=self.run_simulations).grid(row=7, column=0, columnspan=2)
 
-    def toggle_seed_entry(self):
+    def toggle_seed_entry(self) -> None:
+        """
+        Toggle visibility of seed input based on the reproducibility checkbox.
+        """
         if self.reproducible.get():
             self.seed_entry.grid()
             self.seed_label.grid()
@@ -106,7 +169,10 @@ class App:
             self.seed_entry.grid_remove()
             self.seed_label.grid_remove()
 
-    def run_simulations(self):
+    def run_simulations(self) -> None:
+        """
+        Perform some input validation and run random walker simulations based on user input.
+        """
         if not self._validate_dimensions(self.ndim.get()):
             messagebox.showerror("Error", "Number of dimensions must be an integer between 1 and 3.")
             return
@@ -124,28 +190,53 @@ class App:
             return
 
         np.random.seed()
-        seeds = [i + self.seed_start.get() for i in range(self.nsteps.get())] if self.reproducible else [
-                                                                                                            -1] * self.nsteps.get()
-        rwalkers = run_simulations(eval(self.start.get()), self.ndim.get(), seeds, self.nwalkers.get(),
-                                   self.nsteps.get())
+        seeds = [i + self.seed_start.get() for i in range(self.nsteps.get())] if self.reproducible else [-1] * self.nsteps.get()
+
+        rwalkers = run_simulations(eval(self.start.get()), self.ndim.get(), seeds, self.nwalkers.get(), self.nsteps.get())
         run_animation(rwalkers, self.ndim.get(), self.nsteps.get(), self.stable_lims.get())
 
+    def _validate_dimensions(self, ndim: int) -> bool:
+        """
+        Ensure the number of dimensions is between 1 and 3 inclusive.
 
-    def _validate_dimensions(self, ndim):
+        Parameters:
+        - ndim (int): Number of dimensions.
+
+        Returns:
+        - bool: True if the number of dimensions is valid, False otherwise.
+        """
         try:
             ndim = int(ndim)
             return 1 <= ndim <= 3
         except ValueError:
             return False
 
-    def _validate_start(self, start):
+    def _validate_start(self, start: str) -> bool:
+        """
+        Ensure the start position is a tuple of integers or floats of length equal to the number of dimensions.
+
+        Parameters:
+        - start (str): Start position.
+
+        Returns:
+        - bool: True if the start position is valid, False otherwise.
+        """
         try:
             start = eval(start)
             return isinstance(start, tuple) and all(isinstance(val, (int, float)) for val in start) and len(start) == self.ndim.get()
         except ValueError:
             return False
 
-    def _validate_positive_int(self, value):
+    def _validate_positive_int(self, value: int) -> bool:
+        """
+        Ensure an input is a positive integer number.
+
+        Parameters:
+        - value (int): Value to validate.
+
+        Returns:
+        - bool: True if the value is valid, False otherwise.
+        """
         try:
             value = int(value)
             return value > 0
