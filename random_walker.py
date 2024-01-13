@@ -32,7 +32,6 @@ class RandomWalker:
     - track() -> List[Tuple[float, ...]]:                Get a list of positions visited during the random walk.
     - plot_track(ax: Optional[plt.Axes] = None) -> None: Plot the walker's position during each step.
     """
-
     def __init__(self, start: Tuple[float, ...], ndim: Optional[int] = 1, seed: Optional[int] = -1) -> None:
         """
         Initialise the RandomWalker object.
