@@ -6,7 +6,6 @@ import tkinter as tk
 from tkinter import ttk
 from tkinter import messagebox
 from typing import List, Tuple
-
 from random_walker import RandomWalker
 
 matplotlib.use("TkAgg")
