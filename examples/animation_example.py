@@ -39,8 +39,7 @@ def update(frame: int, ax: plt.Axes, rwalkers: List[RandomWalker], stable_lims: 
     return artists
 
 
-def run_examples_animation(start: Tuple[float, ...], ndim: int, seed: List[int], nwalkers: int, nsteps: int,
-                           stable_lims: bool) -> None:
+def run_examples_animation(start: Tuple[float, ...], ndim: int, seed: List[int], nwalkers: int, nsteps: int, stable_lims: bool) -> None:
     """
     Run an animation of random walk simulations and plot the results.
 

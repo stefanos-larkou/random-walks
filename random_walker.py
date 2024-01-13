@@ -38,8 +38,8 @@ class RandomWalker:
 
         Parameters:
         - start (Tuple[float, ...]):       The starting position of the walker.
-        - ndim (Optional[int]):            The number of dimensions for the walker. Default is 1, must be between 1 and 3
-                                           inclusive.
+        - ndim (Optional[int]):            The number of dimensions for the walker. Default is 1, must be between 1 and
+                                           3 inclusive.
         - seed (Optional[int]):            The random seed for reproducibility. Default is -1, indicating no seed.
 
         Attributes:
@@ -166,8 +166,7 @@ class RandomWalker:
         """
         return [tr[0] for tr in self.track_data]
 
-    def plot_track(self, ax: Optional[plt.Axes] = None,
-                   frame: Optional[int] = None, stable_lims: Optional[bool] = False) -> None:
+    def plot_track(self, ax: Optional[plt.Axes] = None, frame: Optional[int] = None, stable_lims: Optional[bool] = False) -> None:
         """
         Plot the walker's position during each step.
 
