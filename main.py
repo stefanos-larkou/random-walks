@@ -70,28 +70,31 @@ class App:
         self.create_widgets()
 
     def create_widgets(self):
+        ttk.Style().configure("TLabel", padding=(0, 3))
+        ttk.Style().configure("TButton", padding=(10, 10))
+
         ttk.Label(self.root, text="Reproducible:").grid(row=0, column=0, sticky="w")
-        ttk.Checkbutton(self.root, variable=self.reproducible, command=self.toggle_seed_entry).grid(row=0, column=1, sticky="w")
+        ttk.Checkbutton(self.root, variable=self.reproducible, command=self.toggle_seed_entry).grid(row=0, column=1)
 
         self.seed_label = ttk.Label(self.root, text="Seed Start:")
         self.seed_label.grid(row=1, column=0, sticky="w")
         self.seed_entry = ttk.Entry(self.root, textvariable=self.seed_start)
-        self.seed_entry.grid(row=1, column=1, sticky="w")
+        self.seed_entry.grid(row=1, column=1)
 
         ttk.Label(self.root, text="Stable Limits:").grid(row=2, column=0, sticky="w")
-        ttk.Checkbutton(self.root, variable=self.stable_lims).grid(row=2, column=1, sticky="w")
+        ttk.Checkbutton(self.root, variable=self.stable_lims).grid(row=2, column=1)
 
         ttk.Label(self.root, text="Number of Dimensions:").grid(row=3, column=0, sticky="w")
-        ttk.Entry(self.root, textvariable=self.ndim).grid(row=3, column=1, sticky="w")
+        ttk.Entry(self.root, textvariable=self.ndim).grid(row=3, column=1)
 
         ttk.Label(self.root, text="Start Position:").grid(row=4, column=0, sticky="w")
-        ttk.Entry(self.root, textvariable=self.start).grid(row=4, column=1, sticky="w")
+        ttk.Entry(self.root, textvariable=self.start).grid(row=4, column=1)
 
         ttk.Label(self.root, text="Number of Steps:").grid(row=5, column=0, sticky="w")
-        ttk.Entry(self.root, textvariable=self.nsteps).grid(row=5, column=1, sticky="w")
+        ttk.Entry(self.root, textvariable=self.nsteps).grid(row=5, column=1)
 
         ttk.Label(self.root, text="Number of Walkers:").grid(row=6, column=0, sticky="w")
-        ttk.Entry(self.root, textvariable=self.nwalkers).grid(row=6, column=1, sticky="w")
+        ttk.Entry(self.root, textvariable=self.nwalkers).grid(row=6, column=1)
 
         ttk.Button(self.root, text="Run Simulations", command=self.run_simulations).grid(row=7, column=0, columnspan=2)
 
@@ -153,6 +156,7 @@ class App:
 def main():
     root = tk.Tk()
     App(root)
+    root.resizable(False, False)
     root.mainloop()
 
 
