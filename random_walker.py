@@ -201,7 +201,8 @@ class RandomWalker:
                 positions = positions[:frame + 1]
 
             # Plot the random walk
-            ax.plot(range(len(positions)), positions, marker='D', markersize=2, alpha=0.4)
+            ax.plot(range(len(positions)), positions, alpha=0.7)
+            ax.scatter(range(len(positions)), positions, color='r', marker='D', s=8, alpha=0.2)
             ax.set_title(f'Random Walk - {self.ndim}D')
             ax.set_xlabel('Step')
             ax.set_ylabel('x')
@@ -219,7 +220,8 @@ class RandomWalker:
                 x, y = x[:frame + 1], y[:frame + 1]
 
             # Plot the random walk
-            ax.plot(x, y, marker='D', markersize=2, alpha=0.4)
+            ax.plot(x, y, alpha=0.7)
+            ax.scatter(x, y, color='r', marker='D', s=8, alpha=0.2)
             ax.set_title(f'Random Walk - {self.ndim}D')
             ax.set_xlabel('x')
             ax.set_ylabel('y')
@@ -238,7 +240,7 @@ class RandomWalker:
                 x, y, z = x[:frame + 1], y[:frame + 1], z[:frame + 1]
 
             # Plot the random walk
-            ax.plot(x, y, z, marker='D', markersize=2, alpha=0.4)
+            ax.plot(x, y, z, alpha=0.7)
             ax.set_title(f'Random Walk - {self.ndim}D')
             ax.set_xlabel('x')
             ax.set_ylabel('y')
