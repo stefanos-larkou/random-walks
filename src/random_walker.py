@@ -188,7 +188,7 @@ class RandomWalker:
         # If no axis is given to plot on create one
         if ax is None:
             fig = plt.figure()
-            ax = fig.add_subplot(111, projection='3d') if self.ndim == 3 else fig.add_subplot(111)
+            ax = fig.add_subplot(111, projection="3d") if self.ndim == 3 else fig.add_subplot(111)
 
         # Get all past positions of the random walk
         positions = self.track()

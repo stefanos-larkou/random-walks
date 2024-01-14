@@ -23,20 +23,20 @@ def setup_axes(ndim: int) -> Tuple[plt.Figure, Union[plt.Axes, p3.axes3d.Axes3D]
     """
     # Instantiate plot
     fig = plt.figure()
-    ax = fig.add_subplot(111, projection='3d') if ndim == 3 else fig.add_subplot(111)
+    ax = fig.add_subplot(111, projection="3d") if ndim == 3 else fig.add_subplot(111)
 
     # Set title and labels
-    ax.set_title(f'Random Walk - {ndim}D')
+    ax.set_title(f"Random Walk - {ndim}D")
     if ndim == 1:
-        ax.set_xlabel('Step')
-        ax.set_ylabel('x')
+        ax.set_xlabel("Step")
+        ax.set_ylabel("x")
     elif ndim == 2:
-        ax.set_xlabel('x')
-        ax.set_ylabel('y')
+        ax.set_xlabel("x")
+        ax.set_ylabel("y")
     elif ndim == 3:
-        ax.set_xlabel('x')
-        ax.set_ylabel('y')
-        ax.set_zlabel('z')
+        ax.set_xlabel("x")
+        ax.set_ylabel("y")
+        ax.set_zlabel("z")
 
     return fig, ax
 
@@ -92,7 +92,7 @@ def run_animation(rwalkers: List[RandomWalker], ndim: int, nsteps: int, stable_l
     if save:
         path = f"src/images/plots{ndim}d"
         os.makedirs(path, exist_ok=True)
-        #animation.save(os.path.join(path, f"{name}.gif"), writer='pillow', fps=30)
+        #animation.save(os.path.join(path, f"{name}.gif"), writer="pillow", fps=30)
         fig.savefig(os.path.join(path, f"{name}.png"), dpi=200)
 
     plt.show()

@@ -249,9 +249,9 @@ class App:
 
 def main():
     window = TKMT.ThemedTKinterFrame("Random Walk Simulation", "azure", "light")
-    icon_path = 'src\\images\\icon.ico'
+    icon_path = "images\\icon.ico"
     window_icon = tk.PhotoImage(file=icon_path)
-    window.root.tk.call('wm', 'iconphoto', window.root._w, window_icon)
+    window.root.tk.call("wm", "iconphoto", window.root._w, window_icon)
     window.root.resizable(False, False)
     App(window.root)
     window.root.mainloop()
