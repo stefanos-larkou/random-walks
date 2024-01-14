@@ -41,7 +41,7 @@ def setup_axes(ndim: int) -> Tuple[plt.Figure, Union[plt.Axes, p3.axes3d.Axes3D]
     return fig, ax
 
 
-def save_fig(fig: plt.Figure, ndim: int, name: str, animation: matplotlib.animation.FuncAnimation = None) -> None:
+def save_fig(fig: plt.Figure, ndim: int, name: str) -> None:
     """
     Save the resulting figure to a file.
 
@@ -49,15 +49,10 @@ def save_fig(fig: plt.Figure, ndim: int, name: str, animation: matplotlib.animat
     - fig (plt.Figure): The final figure to be saved.
     - ndim (int):       The number of dimensions of the random walks, used for determining the directory name.
     - name (str):       The filename.
-    - animation (matplotlib.animation.FuncAnimation):
-                        The animation object to create a gif file if it is an animation.
     """
     path = f"images/plots{ndim}d"
     os.makedirs(path, exist_ok=True)
     fig.savefig(os.path.join(path, f"{name}.png"), dpi=200)
-
-    # if animation is not None:
-    #     animation.save(os.path.join(path, f"{name}.gif"), writer="pillow", fps=30)
 
 
 def update(frame: int, ax: Union[plt.Axes, p3.axes3d.Axes3D], rwalkers: List[RandomWalker], stable_lims: bool) -> List[Union[matplotlib.lines.Line2D, mpl_toolkits.mplot3d.art3d.Line3D]]:
@@ -109,7 +104,7 @@ def run_animation(rwalkers: List[RandomWalker], ndim: int, nsteps: int, stable_l
     )
 
     if save:
-        save_fig(fig, ndim, name, animation)
+        save_fig(fig, ndim, name)
 
     plt.show()
 
