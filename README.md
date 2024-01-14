@@ -1,6 +1,6 @@
 # Random Walk Simulation
 
-This project implements a random walk simulation using Python. The simulation allows users to visualize the paths of multiple random walks in one, two, or three dimensions. The simulation can be run as an animation or as a static plot.
+Implement a random walk simulations using Python. The simulations allow users to visualize the paths of multiple random walks in one, two, or three dimensions. They can be run as an animation or as a static plot.
 
 ## Table of Contents
 - [Project Structure](#project-structure)
