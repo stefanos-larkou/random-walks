@@ -15,7 +15,7 @@ def run_examples(seed: List[int], nwalkers: int, nsteps: int) -> None:
 
     This function demonstrates the usage of the RandomWalker class by creating instances with the specified and seeds
     starting at the origin.
-    It generates random walks for multiple walkers, plots the tracks, and displays the animation using matplotlib.
+    It generates random walks for multiple walkers, plots the tracks, and displays the animation using Matplotlib.
 
     Examples:
     - One-dimensional random walk.

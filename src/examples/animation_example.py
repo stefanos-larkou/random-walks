@@ -18,7 +18,7 @@ NWALKERS = 20
 
 def update(frame: int, ax: plt.Axes, rwalkers: List[RandomWalker], stable_lims: bool) -> List[plt.Line2D]:
     """
-    Update function for the animation of random walk simulations. This function is called by matplotlib's FuncAnimation
+    Update function for the animation of random walk simulations. This function is called by Matplotlib's FuncAnimation
     to update the plot for each frame of the animation.
 
     Parameters:
@@ -45,7 +45,7 @@ def run_examples_animation(start: Tuple[float, ...], ndim: int, seed: List[int],
 
     This function demonstrates the usage of the RandomWalker class by creating instances with the specified starting
     position, number of dimensions, and seeds.
-    It generates random walks for multiple walkers, plots the tracks, and displays the animation using matplotlib.
+    It generates random walks for multiple walkers, plots the tracks, and displays the animation using Matplotlib.
 
     Each frame in the animation corresponds to a step in the random walk. The animation shows the paths of multiple
     random walkers simultaneously.
