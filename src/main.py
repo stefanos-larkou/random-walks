@@ -3,6 +3,7 @@ import tkinter as tk
 from tkinter import ttk, messagebox
 import TKinterModernThemes as TKMT
 from typing import List, Tuple
+import re
 from random_walker import RandomWalker
 from visualisation import run_animation, run_plot
 
@@ -45,9 +46,14 @@ class App:
     - nsteps (tk.IntVar):           The number of steps of the random walks.
     - nwalkers (tk.IntVar):         The number of RandomWalker instances to create.
     - animate (tk.BooleanVar):      Whether to create an animation or simply plot the random walks.
+    - save (tk.BooleanVar):         Whether to save the resulting figure to a file.
+    - mame (tk.StringVar):          Name of the file to be saved. Must start and end with alphanumeric characters and
+                                    only whitespaces, hyphens, and underscores are allowed.
 
     - seed_label (ttk.Label):       Seed input label stored to toggle visibility.
     - seed_entry (ttk.Entry):       Seed input stored to toggle visibility.
+    - name_label (ttk.Label):       Name input label stored to toggle visibility.
+    - name_entry (ttk.Entry):       Name input stored to toggle visibility.
 
     Methods:
     - create_widgets() -> None: Create GUI widgets for the random walk parameter input.
@@ -73,9 +79,13 @@ class App:
         self.nsteps = tk.IntVar(value=100)
         self.nwalkers = tk.IntVar(value=20)
         self.animate = tk.BooleanVar(value=True)
+        self.save = tk.BooleanVar(value=False)
+        self.name = tk.StringVar(value="result")
 
         self.seed_label = None
         self.seed_entry = None
+        self.name_label = None
+        self.name_entry = None
 
         self.create_widgets()
 
@@ -89,30 +99,41 @@ class App:
         ttk.Label(self.root, text="Reproducible:").grid(row=0, column=0, sticky="w")
         ttk.Checkbutton(self.root, variable=self.reproducible, command=self.toggle_seed_entry).grid(row=0, column=1)
 
-        self.seed_label = ttk.Label(self.root, text="Seed Start:")
+        self.seed_label = ttk.Label(self.root, text="Seed start:")
         self.seed_label.grid(row=1, column=0, sticky="w")
         self.seed_entry = ttk.Entry(self.root, textvariable=self.seed_start)
         self.seed_entry.grid(row=1, column=1)
 
-        ttk.Label(self.root, text="Stable Limits:").grid(row=2, column=0, sticky="w")
+        ttk.Label(self.root, text="Stable limits:").grid(row=2, column=0, sticky="w")
         ttk.Checkbutton(self.root, variable=self.stable_lims).grid(row=2, column=1)
 
-        ttk.Label(self.root, text="Number of Dimensions:").grid(row=3, column=0, sticky="w")
+        ttk.Label(self.root, text="Number of dimensions:").grid(row=3, column=0, sticky="w")
         ttk.Entry(self.root, textvariable=self.ndim).grid(row=3, column=1)
 
-        ttk.Label(self.root, text="Start Position:").grid(row=4, column=0, sticky="w")
+        ttk.Label(self.root, text="Start position:").grid(row=4, column=0, sticky="w")
         ttk.Entry(self.root, textvariable=self.start).grid(row=4, column=1)
 
-        ttk.Label(self.root, text="Number of Steps:").grid(row=5, column=0, sticky="w")
+        ttk.Label(self.root, text="Number of steps:").grid(row=5, column=0, sticky="w")
         ttk.Entry(self.root, textvariable=self.nsteps).grid(row=5, column=1)
 
-        ttk.Label(self.root, text="Number of Walkers:").grid(row=6, column=0, sticky="w")
+        ttk.Label(self.root, text="Number of walkers:").grid(row=6, column=0, sticky="w")
         ttk.Entry(self.root, textvariable=self.nwalkers).grid(row=6, column=1)
 
         ttk.Label(self.root, text="Animate:").grid(row=7, column=0, sticky="w")
         ttk.Checkbutton(self.root, variable=self.animate).grid(row=7, column=1)
 
-        ttk.Button(self.root, text="Run Simulations", command=self.run_simulations).grid(row=8, column=0, columnspan=2)
+        ttk.Label(self.root, text="Save result:").grid(row=8, column=0, sticky="w")
+        ttk.Checkbutton(self.root, variable=self.save, command=self.toggle_name_entry).grid(row=8, column=1)
+
+        self.name_label = ttk.Label(self.root, text="Filename:")
+        self.name_label.grid(row=9, column=0, sticky="w")
+        self.name_entry = ttk.Entry(self.root, textvariable=self.name)
+        self.name_entry.grid(row=9, column=1)
+
+        ttk.Button(self.root, text="Run Simulations", command=self.run_simulations).grid(row=10, column=0, columnspan=2)
+
+        self.name_entry.grid_remove()
+        self.name_label.grid_remove()
 
     def toggle_seed_entry(self) -> None:
         """
@@ -124,6 +145,17 @@ class App:
         else:
             self.seed_entry.grid_remove()
             self.seed_label.grid_remove()
+
+    def toggle_name_entry(self) -> None:
+        """
+        Toggle visibility of seed input based on the reproducibility checkbox.
+        """
+        if self.save.get():
+            self.name_entry.grid()
+            self.name_label.grid()
+        else:
+            self.name_entry.grid_remove()
+            self.name_label.grid_remove()
 
     def run_simulations(self) -> None:
         """
@@ -145,15 +177,20 @@ class App:
             if not self._validate_positive_int(self.nwalkers.get()):
                 messagebox.showerror("Error", "Number of walkers must be a positive integer.")
                 return
+            if not self._validate_filename(self.name.get()):
+                messagebox.showerror("Error", "Filename must begin and end with alphanumeric characters. "
+                                                            "Only whitespaces, hyphens, and underscores are allowed "
+                                                            "between.")
+                return
 
             np.random.seed()
             seeds = [i + self.seed_start.get() for i in range(self.nsteps.get())] if self.reproducible.get() else [-1] * self.nsteps.get()
             rwalkers = run_simulations(eval(self.start.get()), self.ndim.get(), seeds, self.nwalkers.get(), self.nsteps.get())
 
             if self.animate.get():
-                run_animation(rwalkers, self.ndim.get(), self.nsteps.get(), self.stable_lims.get())
+                run_animation(rwalkers, self.ndim.get(), self.nsteps.get(), self.stable_lims.get(), self.save.get(), self.name.get())
             else:
-                run_plot(rwalkers, self.ndim.get())
+                run_plot(rwalkers, self.ndim.get(), self.save.get(), self.name.get())
         except tk.TclError:
             messagebox.showerror("Error", "Please enter valid inputs.")
 
@@ -204,6 +241,10 @@ class App:
             return value > 0
         except ValueError:
             return False
+
+    def _validate_filename(self, name):
+        regex = re.compile(r"^[a-zA-Z0-9]([a-zA-Z0-9_ -]*[a-zA-Z0-9])?$")
+        return regex.match(name)
 
 
 def main():

@@ -6,6 +6,7 @@ from matplotlib.animation import FuncAnimation
 from typing import List, Union
 from random_walker import RandomWalker
 from typing import Tuple
+import os
 
 matplotlib.use("TkAgg")
 
@@ -64,7 +65,7 @@ def update(frame: int, ax: Union[plt.Axes, p3.axes3d.Axes3D], rwalkers: List[Ran
     return artists
 
 
-def run_animation(rwalkers: List[RandomWalker], ndim: int, nsteps: int, stable_lims: bool) -> None:
+def run_animation(rwalkers: List[RandomWalker], ndim: int, nsteps: int, stable_lims: bool, save: bool, name: str) -> None:
     """
     Run the animation of random walker simulations.
 
@@ -73,6 +74,8 @@ def run_animation(rwalkers: List[RandomWalker], ndim: int, nsteps: int, stable_l
     - ndim (int):                    The number of dimensions for the walkers.
     - nsteps (int):                  The number of steps in each random walk.
     - stable_lims (bool):            Whether to keep the axes limits constant when animating or not.
+    - save (bool):                   Whether to save the resulting figure to a file.
+    - name (string):                 Name of the file to save
     """
     fig, ax = setup_axes(ndim)
 
@@ -86,20 +89,33 @@ def run_animation(rwalkers: List[RandomWalker], ndim: int, nsteps: int, stable_l
         repeat=False
     )
 
+    if save:
+        path = f"src/images/plots{ndim}d"
+        os.makedirs(path, exist_ok=True)
+        #animation.save(os.path.join(path, f"{name}.gif"), writer='pillow', fps=30)
+        fig.savefig(os.path.join(path, f"{name}.png"), dpi=200)
+
     plt.show()
 
 
-def run_plot(rwalkers: List[RandomWalker], ndim: int) -> None:
+def run_plot(rwalkers: List[RandomWalker], ndim: int, save: bool, name: str) -> None:
     """
     Create a static plot of the random walks.
 
     Parameters:
     - rwalkers (List[RandomWalker]): List of RandomWalker instances to visualize.
     - ndim (int):                    The number of dimensions for the walkers.
+    - save (bool):                   Whether to save the resulting figure to a file.
+    - name (string):                 Name of the file to save
     """
     fig, ax = setup_axes(ndim)
 
     for rwalker in rwalkers:
         rwalker.plot_track(ax)
+
+    if save:
+        path = f"src/images/plots{ndim}d"
+        os.makedirs(path, exist_ok=True)
+        fig.savefig(os.path.join(path, f"{name}.png"), dpi=200)
 
     plt.show()
