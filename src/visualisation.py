@@ -13,7 +13,7 @@ matplotlib.use("TkAgg")
 
 def setup_axes(ndim: int) -> Tuple[plt.Figure, Union[plt.Axes, p3.axes3d.Axes3D]]:
     """
-    Set up the matplotlib figure and axes for plotting random walks.
+    Set up the Matplotlib figure and axes for plotting random walks.
 
     Parameters:
     - ndim (int): The number of dimensions for the walkers.
@@ -57,7 +57,7 @@ def save_fig(fig: plt.Figure, ndim: int, name: str) -> None:
 
 def update(frame: int, ax: Union[plt.Axes, p3.axes3d.Axes3D], rwalkers: List[RandomWalker], stable_lims: bool) -> List[Union[matplotlib.lines.Line2D, mpl_toolkits.mplot3d.art3d.Line3D]]:
     """
-    Update function for the animation. Called by matplotlib's FuncAnimation to update the plot for each frame of the
+    Update function for the animation. Called by Matplotlib's FuncAnimation to update the plot for each frame of the
     animation.
 
     Parameters:
