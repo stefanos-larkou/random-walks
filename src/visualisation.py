@@ -1,4 +1,3 @@
-import matplotlib
 import matplotlib.lines
 import mpl_toolkits.mplot3d as p3
 import mpl_toolkits.mplot3d.art3d
@@ -6,8 +5,39 @@ from matplotlib import pyplot as plt
 from matplotlib.animation import FuncAnimation
 from typing import List, Union
 from random_walker import RandomWalker
+from typing import Tuple
 
 matplotlib.use("TkAgg")
+
+
+def setup_axes(ndim: int) -> Tuple[plt.Figure, Union[plt.Axes, p3.axes3d.Axes3D]]:
+    """
+    Set up the matplotlib figure and axes for plotting random walks.
+
+    Parameters:
+    - ndim (int): The number of dimensions for the walkers.
+
+    Returns:
+    - Tuple[plt.Figure, Union[plt.Axes, p3.axes3d.Axes3D]]: The created figure and axes to plot on.
+    """
+    # Instantiate plot
+    fig = plt.figure()
+    ax = fig.add_subplot(111, projection='3d') if ndim == 3 else fig.add_subplot(111)
+
+    # Set title and labels
+    ax.set_title(f'Random Walk - {ndim}D')
+    if ndim == 1:
+        ax.set_xlabel('Step')
+        ax.set_ylabel('x')
+    elif ndim == 2:
+        ax.set_xlabel('x')
+        ax.set_ylabel('y')
+    elif ndim == 3:
+        ax.set_xlabel('x')
+        ax.set_ylabel('y')
+        ax.set_zlabel('z')
+
+    return fig, ax
 
 
 def update(frame: int, ax: Union[plt.Axes, p3.axes3d.Axes3D], rwalkers: List[RandomWalker], stable_lims: bool) -> List[Union[matplotlib.lines.Line2D, mpl_toolkits.mplot3d.art3d.Line3D]]:
@@ -44,22 +74,7 @@ def run_animation(rwalkers: List[RandomWalker], ndim: int, nsteps: int, stable_l
     - nsteps (int):                  The number of steps in each random walk.
     - stable_lims (bool):            Whether to keep the axes limits constant when animating or not.
     """
-    # Create plot
-    fig = plt.figure()
-    ax = fig.add_subplot(111, projection='3d') if ndim == 3 else fig.add_subplot(111)
-    print(type(ax))
-    # Set title and labels
-    ax.set_title(f'Random Walk - {ndim}D')
-    if ndim == 1:
-        ax.set_xlabel('Step')
-        ax.set_ylabel('x')
-    elif ndim == 2:
-        ax.set_xlabel('x')
-        ax.set_ylabel('y')
-    elif ndim == 3:
-        ax.set_xlabel('x')
-        ax.set_ylabel('y')
-        ax.set_zlabel('z')
+    fig, ax = setup_axes(ndim)
 
     # Run the animation
     animation = FuncAnimation(
@@ -70,5 +85,21 @@ def run_animation(rwalkers: List[RandomWalker], ndim: int, nsteps: int, stable_l
         interval=min(1 / (nsteps * 2), 0.5),
         repeat=False
     )
+
+    plt.show()
+
+
+def run_plot(rwalkers: List[RandomWalker], ndim: int) -> None:
+    """
+    Create a static plot of the random walks.
+
+    Parameters:
+    - rwalkers (List[RandomWalker]): List of RandomWalker instances to visualize.
+    - ndim (int):                    The number of dimensions for the walkers.
+    """
+    fig, ax = setup_axes(ndim)
+
+    for rwalker in rwalkers:
+        rwalker.plot_track(ax)
 
     plt.show()

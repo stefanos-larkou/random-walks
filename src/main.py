@@ -4,7 +4,7 @@ from tkinter import ttk, messagebox
 import TKinterModernThemes as TKMT
 from typing import List, Tuple
 from random_walker import RandomWalker
-from animation import run_animation, run_plot
+from visualisation import run_animation, run_plot
 
 
 def run_simulations(start: Tuple[float, ...], ndim: int, seed: List[int], nwalkers: int, nsteps: int) -> List[RandomWalker]:
