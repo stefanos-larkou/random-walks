@@ -59,9 +59,12 @@ Root Directory
 3. Run the script. 
 4. A new window will pop up with the animation or static plot of the simulation.
 
+### Executable
+1. Open RWalk.exe
+
 ## Dependencies
 
-The project relies on the following external libraries:
+On top of Python, the project relies on the following external libraries:
 
 - **Matplotlib**: Used for creating the plots.
 - **NumPy**: Used for numerical operations and data structuring.
@@ -72,6 +75,10 @@ To install the dependencies, you can use the following command:
 ```bash
 pip install -r requirements.txt
 ```
+
+To install python, see the [official website](https://www.python.org/downloads/)
+
+Note: This application was built on Python 3.11.
 
 ## License
 
