@@ -5,7 +5,7 @@ from typing import List, Tuple, Optional
 
 class RandomWalker:
     """
-    A class for simulating a random walker in multiple dimensions.
+    A class for simulating a random walker.
 
     Parameters:
     - start (Tuple[float, ...]): The starting position of the walker.
