@@ -1,3 +1,5 @@
+import os
+import sys
 import numpy as np
 import tkinter as tk
 from tkinter import ttk, messagebox
@@ -308,7 +310,8 @@ class App:
 
 def main():
     window = TKMT.ThemedTKinterFrame("Random Walk Simulation", "azure", "light")
-    icon_path = "images\\icon.ico"
+    base_dir = getattr(sys, '_MEIPASS', os.path.abspath(os.path.dirname(__file__)))
+    icon_path = os.path.join(base_dir, "images", "icon.ico")
     window_icon = tk.PhotoImage(file=icon_path)
     window.root.tk.call("wm", "iconphoto", window.root._w, window_icon)
     window.root.resizable(False, False)
