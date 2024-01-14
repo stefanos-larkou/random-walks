@@ -8,7 +8,7 @@ from typing import List, Tuple
 import re
 from random_walker import RandomWalker
 from visualisation import run_animation, run_plot
-
+from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 
 def run_simulations(start: Tuple[float, ...], ndim: int, seed: List[int], nwalkers: int, nsteps: int) -> List[RandomWalker]:
     """
@@ -54,6 +54,7 @@ class App:
 
     - seed_label (ttk.Label):       Seed input label stored to toggle visibility.
     - name_label (ttk.Label):       Name input label stored to toggle visibility.
+
     - seed_entry (ttk.Entry):       Seed input stored to toggle visibility.
     - name_entry (ttk.Entry):       Name input stored to toggle visibility.
     - ndim_entry (ttk.Entry):       Dimensionality input stored to bind to validation function.
@@ -61,6 +62,9 @@ class App:
     - nsteps_entry (ttk.Entry):     Number of steps input stored to bind to validation function.
     - nwalkers_entry (ttk.Entry):   Number of random walks input stored to bind to validation function.
     - name_entry (ttk.Entry):       Filename input stored to bind to validation function.
+
+    - animation (matplotlib.animation.FuncAnimation):
+                                    The animation to be plotted.
 
     Methods:
     - create_widgets() -> None:    Create GUI widgets for the random walk parameter input.
@@ -99,6 +103,8 @@ class App:
         self.nsteps_entry = None
         self.nwalkers_entry = None
         self.name_entry = None
+
+        self.animation = None
 
         self.create_widgets()
 
@@ -215,9 +221,13 @@ class App:
             rwalkers = run_simulations(eval(self.start.get()), self.ndim.get(), seeds, self.nwalkers.get(), self.nsteps.get())
 
             if self.animate.get():
-                run_animation(rwalkers, self.ndim.get(), self.nsteps.get(), self.stable_lims.get(), self.save.get(), self.name.get())
+                self.animation, fig = run_animation(rwalkers, self.ndim.get(), self.nsteps.get(), self.stable_lims.get(), self.save.get(), self.name.get(), self.root)
+                canvas = FigureCanvasTkAgg(fig, master=self.root)
+                canvas.get_tk_widget().grid(row=0, column=2, rowspan=10)
             else:
-                run_plot(rwalkers, self.ndim.get(), self.save.get(), self.name.get())
+                fig = run_plot(rwalkers, self.ndim.get(), self.save.get(), self.name.get())
+                canvas = FigureCanvasTkAgg(fig, master=self.root)
+                canvas.get_tk_widget().grid(row=0, column=2, rowspan=10)
         except tk.TclError:
             messagebox.showerror("Error", "Please enter valid inputs.")
 

@@ -79,7 +79,7 @@ def update(frame: int, ax: Union[plt.Axes, p3.axes3d.Axes3D], rwalkers: List[Ran
     return artists
 
 
-def run_animation(rwalkers: List[RandomWalker], ndim: int, nsteps: int, stable_lims: bool, save: bool, name: str) -> None:
+def run_animation(rwalkers: List[RandomWalker], ndim: int, nsteps: int, stable_lims: bool, save: bool, name: str) -> Tuple[FuncAnimation, plt.Figure]:
     """
     Run the animation of random walker simulations.
 
@@ -106,10 +106,10 @@ def run_animation(rwalkers: List[RandomWalker], ndim: int, nsteps: int, stable_l
     if save:
         save_fig(fig, ndim, name)
 
-    plt.show()
+    return animation, fig
 
 
-def run_plot(rwalkers: List[RandomWalker], ndim: int, save: bool, name: str) -> None:
+def run_plot(rwalkers: List[RandomWalker], ndim: int, save: bool, name: str) -> plt.Figure:
     """
     Create a static plot of the random walks.
 
@@ -118,6 +118,9 @@ def run_plot(rwalkers: List[RandomWalker], ndim: int, save: bool, name: str) -> 
     - ndim (int):                    The number of dimensions for the walkers.
     - save (bool):                   Whether to save the resulting figure to a file.
     - name (string):                 Name of the file to save
+
+    Returns:
+    - plt.Figure:                    The figure containing the resulting plot.
     """
     fig, ax = setup_axes(ndim)
 
@@ -127,4 +130,4 @@ def run_plot(rwalkers: List[RandomWalker], ndim: int, save: bool, name: str) -> 
     if save:
         save_fig(fig, ndim, name)
 
-    plt.show()
+    return fig
