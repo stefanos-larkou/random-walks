@@ -15,6 +15,7 @@ Implement random walk simulations using Python. The simulations allow users to v
 - [Usage](#usage)
   - [Main Program](#main-program)
   - [Examples](#examples)
+  - [Executable](#executable)
 - [Dependencies](#dependencies)
 - [License](#license)
 
