@@ -4,7 +4,7 @@ from tkinter import ttk, messagebox
 import TKinterModernThemes as TKMT
 from typing import List, Tuple
 from random_walker import RandomWalker
-from animation import run_animation
+from animation import run_animation, run_plot
 
 
 def run_simulations(start: Tuple[float, ...], ndim: int, seed: List[int], nwalkers: int, nsteps: int) -> List[RandomWalker]:
@@ -71,6 +71,7 @@ class App:
         self.seed_start = tk.IntVar(value=1)
         self.nsteps = tk.IntVar(value=100)
         self.nwalkers = tk.IntVar(value=20)
+        self.animate = tk.BooleanVar(value=True)
 
         self.seed_label = None
         self.seed_entry = None
@@ -107,7 +108,10 @@ class App:
         ttk.Label(self.root, text="Number of Walkers:").grid(row=6, column=0, sticky="w")
         ttk.Entry(self.root, textvariable=self.nwalkers).grid(row=6, column=1)
 
-        ttk.Button(self.root, text="Run Simulations", command=self.run_simulations).grid(row=7, column=0, columnspan=2)
+        ttk.Label(self.root, text="Animate:").grid(row=7, column=0, sticky="w")
+        ttk.Checkbutton(self.root, variable=self.animate).grid(row=7, column=1)
+
+        ttk.Button(self.root, text="Run Simulations", command=self.run_simulations).grid(row=8, column=0, columnspan=2)
 
     def toggle_seed_entry(self) -> None:
         """
@@ -143,7 +147,11 @@ class App:
         np.random.seed()
         seeds = [i + self.seed_start.get() for i in range(self.nsteps.get())] if self.reproducible.get() else [-1] * self.nsteps.get()
         rwalkers = run_simulations(eval(self.start.get()), self.ndim.get(), seeds, self.nwalkers.get(), self.nsteps.get())
-        run_animation(rwalkers, self.ndim.get(), self.nsteps.get(), self.stable_lims.get())
+
+        if self.animate.get():
+            run_animation(rwalkers, self.ndim.get(), self.nsteps.get(), self.stable_lims.get())
+        else:
+            run_plot(rwalkers, self.ndim.get())
 
     def _validate_dimensions(self, ndim: int) -> bool:
         """
