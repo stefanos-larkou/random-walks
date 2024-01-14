@@ -44,6 +44,7 @@ class App:
                                     increment by 1 for each random walk.
     - nsteps (tk.IntVar):           The number of steps of the random walks.
     - nwalkers (tk.IntVar):         The number of RandomWalker instances to create.
+    - animate (tk.BooleanVar):      Whether to create an animation or simply plot the random walks.
 
     - seed_label (ttk.Label):       Seed input label stored to toggle visibility.
     - seed_entry (ttk.Entry):       Seed input stored to toggle visibility.
