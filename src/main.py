@@ -221,7 +221,7 @@ class App:
             rwalkers = run_simulations(eval(self.start.get()), self.ndim.get(), seeds, self.nwalkers.get(), self.nsteps.get())
 
             if self.animate.get():
-                self.animation, fig = run_animation(rwalkers, self.ndim.get(), self.nsteps.get(), self.stable_lims.get(), self.save.get(), self.name.get(), self.root)
+                self.animation, fig = run_animation(rwalkers, self.ndim.get(), self.nsteps.get(), self.stable_lims.get(), self.save.get(), self.name.get())
                 canvas = FigureCanvasTkAgg(fig, master=self.root)
                 canvas.get_tk_widget().grid(row=0, column=2, rowspan=10)
             else:
