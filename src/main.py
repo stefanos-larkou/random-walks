@@ -129,30 +129,33 @@ class App:
         """
         Perform some input validation and run random walker simulations based on user input.
         """
-        if not self._validate_dimensions(self.ndim.get()):
-            messagebox.showerror("Error", "Number of dimensions must be an integer between 1 and 3.")
-            return
-        if not self._validate_start(self.start.get()):
-            messagebox.showerror("Error", "Invalid start position format or length.")
-            return
-        if not self._validate_positive_int(self.seed_start.get()):
-            messagebox.showerror("Error", "Starting seed value must be a positive integer.")
-            return
-        if not self._validate_positive_int(self.nsteps.get()):
-            messagebox.showerror("Error", "Number of steps must be a positive integer.")
-            return
-        if not self._validate_positive_int(self.nwalkers.get()):
-            messagebox.showerror("Error", "Number of walkers must be a positive integer.")
-            return
+        try:
+            if not self._validate_dimensions(self.ndim.get()):
+                messagebox.showerror("Error", "Number of dimensions must be an integer between 1 and 3.")
+                return
+            if not self._validate_start(self.start.get()):
+                messagebox.showerror("Error", "Invalid start position format or length.")
+                return
+            if not self._validate_positive_int(self.seed_start.get()):
+                messagebox.showerror("Error", "Starting seed value must be a positive integer.")
+                return
+            if not self._validate_positive_int(self.nsteps.get()):
+                messagebox.showerror("Error", "Number of steps must be a positive integer.")
+                return
+            if not self._validate_positive_int(self.nwalkers.get()):
+                messagebox.showerror("Error", "Number of walkers must be a positive integer.")
+                return
 
-        np.random.seed()
-        seeds = [i + self.seed_start.get() for i in range(self.nsteps.get())] if self.reproducible.get() else [-1] * self.nsteps.get()
-        rwalkers = run_simulations(eval(self.start.get()), self.ndim.get(), seeds, self.nwalkers.get(), self.nsteps.get())
+            np.random.seed()
+            seeds = [i + self.seed_start.get() for i in range(self.nsteps.get())] if self.reproducible.get() else [-1] * self.nsteps.get()
+            rwalkers = run_simulations(eval(self.start.get()), self.ndim.get(), seeds, self.nwalkers.get(), self.nsteps.get())
 
-        if self.animate.get():
-            run_animation(rwalkers, self.ndim.get(), self.nsteps.get(), self.stable_lims.get())
-        else:
-            run_plot(rwalkers, self.ndim.get())
+            if self.animate.get():
+                run_animation(rwalkers, self.ndim.get(), self.nsteps.get(), self.stable_lims.get())
+            else:
+                run_plot(rwalkers, self.ndim.get())
+        except tk.TclError:
+            messagebox.showerror("Error", "Please enter valid inputs.")
 
     def _validate_dimensions(self, ndim: int) -> bool:
         """
