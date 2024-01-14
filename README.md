@@ -70,7 +70,7 @@ The project relies on the following external libraries:
 To install the dependencies, you can use the following command:
 
 ```bash
-pip install matplotlib numpy TKinterModernThemes
+pip install -r requirements.txt
 ```
 
 ## License
