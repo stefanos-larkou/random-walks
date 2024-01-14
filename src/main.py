@@ -109,6 +109,7 @@ class App:
         """
         ttk.Style().configure("TLabel", padding=(0, 8))
         ttk.Style().configure("TButton", padding=(10, 10))
+        self.root.rowconfigure(11, minsize=10)
 
         ttk.Label(self.root, text="Reproducible:").grid(row=0, column=0, sticky="w")
         ttk.Checkbutton(self.root, variable=self.reproducible, command=self.toggle_seed_entry).grid(row=0, column=1)
