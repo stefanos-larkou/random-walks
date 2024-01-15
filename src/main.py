@@ -1,14 +1,16 @@
 import os
 import sys
+import re
 import numpy as np
+from matplotlib import pyplot as plt
 import tkinter as tk
 from tkinter import ttk, messagebox
 import TKinterModernThemes as TKMT
 from typing import List, Tuple
-import re
 from random_walker import RandomWalker
 from visualisation import run_animation, run_plot
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
+
 
 def run_simulations(start: Tuple[float, ...], ndim: int, seed: List[int], nwalkers: int, nsteps: int) -> List[RandomWalker]:
     """
@@ -65,6 +67,8 @@ class App:
 
     - animation (matplotlib.animation.FuncAnimation):
                                     The animation to be plotted.
+    - fig (matplotlib.figure.Figure):
+                                    The figure on which the plot will appear
 
     Methods:
     - create_widgets() -> None:    Create GUI widgets for the random walk parameter input.
@@ -105,6 +109,7 @@ class App:
         self.name_entry = None
 
         self.animation = None
+        self.fig = None
 
         self.create_widgets()
 
@@ -221,12 +226,16 @@ class App:
             rwalkers = run_simulations(eval(self.start.get()), self.ndim.get(), seeds, self.nwalkers.get(), self.nsteps.get())
 
             if self.animate.get():
-                self.animation, fig = run_animation(rwalkers, self.ndim.get(), self.nsteps.get(), self.stable_lims.get(), self.save.get(), self.name.get())
-                canvas = FigureCanvasTkAgg(fig, master=self.root)
+                if self.fig is not None:
+                    plt.close(self.fig)
+                self.animation, self.fig = run_animation(rwalkers, self.ndim.get(), self.nsteps.get(), self.stable_lims.get(), self.save.get(), self.name.get())
+                canvas = FigureCanvasTkAgg(self.fig, master=self.root)
                 canvas.get_tk_widget().grid(row=0, column=2, rowspan=10)
             else:
-                fig = run_plot(rwalkers, self.ndim.get(), self.save.get(), self.name.get())
-                canvas = FigureCanvasTkAgg(fig, master=self.root)
+                if self.fig is not None:
+                    plt.close(self.fig)
+                self.fig = run_plot(rwalkers, self.ndim.get(), self.save.get(), self.name.get())
+                canvas = FigureCanvasTkAgg(self.fig, master=self.root)
                 canvas.get_tk_widget().grid(row=0, column=2, rowspan=10)
         except tk.TclError:
             messagebox.showerror("Error", "Please enter valid inputs.")
