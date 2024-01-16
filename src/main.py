@@ -238,7 +238,7 @@ class App:
 
             # Determine seed values and run random walk simulations
             np.random.seed()
-            seeds = [i + self.seed_start.get() for i in range(self.nsteps.get())] if self.reproducible.get() else [-1] * self.nsteps.get()
+            seeds = [i + self.seed_start.get() for i in range(self.nwalkers.get())] if self.reproducible.get() else [-1] * self.nwalkers.get()
             rwalkers = run_simulations(eval(self.start.get()), self.ndim.get(), self.allow_diagonals.get(), seeds, self.nwalkers.get(), self.nsteps.get())
 
             if self.animate.get():
@@ -310,7 +310,8 @@ class App:
             self.start_entry.focus_set()
             return False
 
-    def _validate_positive_int(self, value: int, text: str, entry: tk.Entry) -> bool:
+    @staticmethod
+    def _validate_positive_int(value: int, text: str, entry: tk.Entry) -> bool:
         """
         Ensure an input is a positive integer number.
 
