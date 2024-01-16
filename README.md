@@ -14,8 +14,8 @@ Implement random walk simulations using Python. The simulations allow users to v
   - [Files](#files)
 - [Usage](#usage)
   - [Main Program](#main-program)
-  - [Examples](#examples)
   - [Executable](#executable)
+  - [Examples](#examples)
 - [Dependencies](#dependencies)
 - [License](#license)
 
@@ -53,16 +53,19 @@ Root Directory
 1. Run `main.py` to launch the GUI.
 2. Configure the simulation parameters.
 3. Click on the "Run Simulations" button.
-4. A new window will pop up with the animation or static plot of the simulation.
+4. The animation or static plot of the simulation will appear.
+
+### Executable
+1. Open RWalk.exe
+2. Configure the simulation parameters using the provided inputs.
+3. Click on the "Run Simulations" button.
+4. The animation or static plot of the simulation will appear.
 
 ### Examples
 1. Open `animation_example.py` or `plot_examples.py`
 2. Configure the simulation parameters by adjusting the global variables.
 3. Run the script. 
 4. A new window will pop up with the animation or static plot of the simulation.
-
-### Executable
-1. Open RWalk.exe
 
 ## Dependencies
 
