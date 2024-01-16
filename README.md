@@ -37,6 +37,7 @@ Root Directory
 
 ### Folders
 - **images**: The GUI's icon is located here. More importantly, when saving a plot, it is placed in a subdirectory that will be created here.
+<br> _Note_: If running the executable, a new directory will be created in the same folder containing the newly saved file.
 - **src**: The source code folder.
 - **examples**: The scripts that demonstrate how to use the RandomWalker class and plot the results are located here.
 
@@ -78,8 +79,7 @@ pip install -r requirements.txt
 ```
 
 To install python, see the [official website](https://www.python.org/downloads/)
-
-Note: This application was built on Python 3.11.
+<br> _Note_: This application was built on Python 3.11.
 
 ## License
 
