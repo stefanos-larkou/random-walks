@@ -27,6 +27,7 @@ def run_simulations(start: Tuple[float, ...], ndim: int, allow_diagonals: bool, 
     Returns:
     - List[RandomWalker]: List of RandomWalker objects.
     """
+    # Create walker objects and run the random walks
     rwalkers = []
     for i in range(nwalkers):
         rwalker = RandomWalker(start=start, ndim=ndim, allow_diagonals=allow_diagonals, seed=seed[i])
@@ -86,9 +87,11 @@ class App:
         Parameters:
         - root (tk.Tk): Tkinter root window.
         """
+        # Set root
         self.root = root
         self.root.title("Random Walker Simulation")
 
+        # Initialise input values
         self.reproducible = tk.BooleanVar(value=True)
         self.stable_lims = tk.BooleanVar(value=True)
         self.allow_diagonals = tk.BooleanVar(value=False)
@@ -101,9 +104,9 @@ class App:
         self.save = tk.BooleanVar(value=False)
         self.name = tk.StringVar(value="result")
 
+        # Initialise input objects that need to be stored
         self.seed_label = None
         self.name_label = None
-
         self.ndim_entry = None
         self.start_entry = None
         self.seed_entry = None
@@ -111,9 +114,11 @@ class App:
         self.nwalkers_entry = None
         self.name_entry = None
 
+        # Initialise animation and figure that will be plotted
         self.animation = None
         self.fig = None
 
+        # Set up widgets
         self.create_widgets()
 
     def create_widgets(self) -> None:
@@ -121,60 +126,63 @@ class App:
         Create GUI widgets for the random walk parameter input. Non-checkbox inputs are validated when the user attempts
         to focus on something else.
         """
+        # Generic configuration
         ttk.Style().configure("TLabel", padding=(0, 8))
         ttk.Style().configure("TButton", padding=(10, 10))
         self.root.rowconfigure(12, minsize=10)
 
-        ttk.Label(self.root, text="Reproducible:").grid(row=0, column=0, sticky="w")
+        # Set up widgets, add bindings to validation and toggling functions
+        ttk.Label(self.root, text="Reproducible:").grid(row=0, column=0)
         ttk.Checkbutton(self.root, variable=self.reproducible, command=self.toggle_seed_entry).grid(row=0, column=1)
 
         self.seed_label = ttk.Label(self.root, text="Seed start:")
-        self.seed_label.grid(row=1, column=0, sticky="w")
+        self.seed_label.grid(row=1, column=0)
         self.seed_entry = ttk.Entry(self.root, textvariable=self.seed_start)
         self.seed_entry.grid(row=1, column=1)
         self.seed_entry.bind("<FocusOut>", lambda event: self._validate_positive_int(self.seed_start.get(), "Starting seed value ", self.seed_entry))
 
-        ttk.Label(self.root, text="Stable limits:").grid(row=2, column=0, sticky="w")
+        ttk.Label(self.root, text="Stable limits:").grid(row=2, column=0)
         ttk.Checkbutton(self.root, variable=self.stable_lims).grid(row=2, column=1)
 
-        ttk.Label(self.root, text="Diagonal movements:").grid(row=3, column=0, sticky="w")
+        ttk.Label(self.root, text="Diagonal movements:").grid(row=3, column=0)
         ttk.Checkbutton(self.root, variable=self.allow_diagonals).grid(row=3, column=1)
 
-        ttk.Label(self.root, text="Number of dimensions:").grid(row=4, column=0, sticky="w")
+        ttk.Label(self.root, text="Number of dimensions:").grid(row=4, column=0)
         self.ndim_entry = ttk.Entry(self.root, textvariable=self.ndim)
         self.ndim_entry.grid(row=4, column=1)
         self.ndim_entry.bind("<KeyRelease>", lambda event: self.change_start_dim())
         self.ndim_entry.bind("<FocusOut>", lambda event: self._validate_dimensions())
 
-        ttk.Label(self.root, text="Start position:").grid(row=5, column=0, sticky="w")
+        ttk.Label(self.root, text="Start position:").grid(row=5, column=0)
         self.start_entry = ttk.Entry(self.root, textvariable=self.start)
         self.start_entry.grid(row=5, column=1)
         self.start_entry.bind("<FocusOut>", lambda event: self._validate_start())
 
-        ttk.Label(self.root, text="Number of steps:").grid(row=6, column=0, sticky="w")
+        ttk.Label(self.root, text="Number of steps:").grid(row=6, column=0)
         self.nsteps_entry = ttk.Entry(self.root, textvariable=self.nsteps)
         self.nsteps_entry.grid(row=6, column=1)
         self.nsteps_entry.bind("<FocusOut>", lambda event: self._validate_positive_int(self.nsteps.get(), "Number of steps ", self.nsteps_entry))
 
-        ttk.Label(self.root, text="Number of walkers:").grid(row=7, column=0, sticky="w")
+        ttk.Label(self.root, text="Number of walkers:").grid(row=7, column=0)
         self.nwalkers_entry = ttk.Entry(self.root, textvariable=self.nwalkers)
         self.nwalkers_entry.grid(row=7, column=1)
         self.nwalkers_entry.bind("<FocusOut>", lambda event: self._validate_positive_int(self.nwalkers.get(), "Number of walkers ", self.nwalkers_entry))
 
-        ttk.Label(self.root, text="Animate:").grid(row=8, column=0, sticky="w")
+        ttk.Label(self.root, text="Animate:").grid(row=8, column=0)
         ttk.Checkbutton(self.root, variable=self.animate).grid(row=8, column=1)
 
-        ttk.Label(self.root, text="Save result:").grid(row=9, column=0, sticky="w")
+        ttk.Label(self.root, text="Save result:").grid(row=9, column=0)
         ttk.Checkbutton(self.root, variable=self.save, command=self.toggle_name_entry).grid(row=9, column=1)
 
         self.name_label = ttk.Label(self.root, text="Filename:")
-        self.name_label.grid(row=10, column=0, sticky="w")
+        self.name_label.grid(row=10, column=0)
         self.name_entry = ttk.Entry(self.root, textvariable=self.name)
         self.name_entry.grid(row=10, column=1)
         self.name_entry.bind("<FocusOut>", lambda event: self._validate_filename())
 
         ttk.Button(self.root, text="Run Simulations", command=self.run_simulations).grid(row=11, column=0, columnspan=2)
 
+        # Filename is hidden by default
         self.name_entry.grid_remove()
         self.name_label.grid_remove()
 
@@ -220,6 +228,7 @@ class App:
         Perform input validation again and run random walker simulations based on user input.
         """
         try:
+            # Run validations again (not really needed)
             if not self._validate_dimensions(): return
             if not self._validate_start(): return
             if not self._validate_positive_int(self.seed_start.get(), "Starting seed value ", self.seed_entry): return
@@ -227,23 +236,40 @@ class App:
             if not self._validate_positive_int(self.nwalkers.get(), "Number of walkers ", self.nwalkers_entry): return
             if not self._validate_filename(): return
 
+            # Determine seed values and run random walk simulations
             np.random.seed()
             seeds = [i + self.seed_start.get() for i in range(self.nsteps.get())] if self.reproducible.get() else [-1] * self.nsteps.get()
             rwalkers = run_simulations(eval(self.start.get()), self.ndim.get(), self.allow_diagonals.get(), seeds, self.nwalkers.get(), self.nsteps.get())
 
             if self.animate.get():
+                # If something was already plotted, close it
+                # Not closing it led to issues with animation
                 if self.fig is not None:
                     plt.close(self.fig)
+
+                # Generate the animation
                 self.animation, self.fig = run_animation(rwalkers, self.ndim.get(), self.nsteps.get(), self.stable_lims.get(), self.save.get(), self.name.get())
+
+                # Place figure in window
                 canvas = FigureCanvasTkAgg(self.fig, master=self.root)
-                canvas.get_tk_widget().grid(row=0, column=2, rowspan=11)
+                canvas.get_tk_widget().grid(row=0, column=2, rowspan=12, padx=5, pady=5)
+                canvas.get_tk_widget()['borderwidth'] = 3
+                canvas.get_tk_widget()['relief'] = 'solid'
             else:
+                # If something was already plotted, close it
+                # Not closing it led to issues with animation
+                # Not really needed for static plot
                 if self.fig is not None:
                     plt.close(self.fig)
+
+                # Generate the static plot
                 self.fig = run_plot(rwalkers, self.ndim.get(), self.nsteps.get(), self.save.get(), self.name.get())
+
+                # Place figure in window
                 canvas = FigureCanvasTkAgg(self.fig, master=self.root)
                 canvas.get_tk_widget().grid(row=0, column=2, rowspan=11)
         except tk.TclError:
+            # Just in case something went wrong
             messagebox.showerror("Error", "Please enter valid inputs.")
 
     def _validate_dimensions(self) -> bool:
@@ -335,12 +361,19 @@ class App:
 
 
 def main():
-    window = TKMT.ThemedTKinterFrame("Random Walk Simulation", "azure", "light")
+    # Determine icon path
     base_dir = getattr(sys, '_MEIPASS', os.path.abspath(os.path.dirname(__file__)))
     icon_path = os.path.join(base_dir, "images", "icon.ico")
+
+    # Setup window
+    window = TKMT.ThemedTKinterFrame("Random Walk Simulation", "azure", "light")
     window.root.iconbitmap(icon_path)
     window.root.resizable(False, False)
+
+    # Instantiate app
     App(window.root)
+
+    # Run
     window.root.mainloop()
 
 

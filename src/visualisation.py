@@ -123,10 +123,12 @@ def update(frame: int, ax: Union[plt.Axes, p3.axes3d.Axes3D], rwalkers: List[Ran
     """
     artists = []
 
+    # Plot the track of each walker up to current frame
     for rwalker in rwalkers:
         rwalker.plot_track(ax, frame)
         artists.extend(ax.lines)
 
+    # If not constant axes limits, reset them every frame based on "current" data
     if not stable_lims:
         set_ax_lims(rwalkers, ax, ndim, nsteps, frame)
 
@@ -150,6 +152,7 @@ def run_animation(rwalkers: List[RandomWalker], ndim: int, nsteps: int, stable_l
     """
     fig, ax = setup_axes(ndim)
 
+    # If constant axes, set them once here
     if stable_lims:
         set_ax_lims(rwalkers, ax, ndim, nsteps)
 
@@ -186,6 +189,7 @@ def run_plot(rwalkers: List[RandomWalker], ndim: int, nsteps: int, save: bool, n
     fig, ax = setup_axes(ndim)
     set_ax_lims(rwalkers, ax, ndim, nsteps)
 
+    # Plot the track of each walker
     for rwalker in rwalkers:
         rwalker.plot_track(ax)
 
