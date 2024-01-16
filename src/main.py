@@ -234,7 +234,7 @@ class App:
             else:
                 if self.fig is not None:
                     plt.close(self.fig)
-                self.fig = run_plot(rwalkers, self.ndim.get(), self.save.get(), self.name.get())
+                self.fig = run_plot(rwalkers, self.ndim.get(), self.nsteps.get(), self.save.get(), self.name.get())
                 canvas = FigureCanvasTkAgg(self.fig, master=self.root)
                 canvas.get_tk_widget().grid(row=0, column=2, rowspan=10)
         except tk.TclError:

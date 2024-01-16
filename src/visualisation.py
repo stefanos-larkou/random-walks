@@ -3,7 +3,7 @@ import mpl_toolkits.mplot3d as p3
 import mpl_toolkits.mplot3d.art3d
 from matplotlib import pyplot as plt
 from matplotlib.animation import FuncAnimation
-from typing import List, Union
+from typing import List, Union, Optional
 from random_walker import RandomWalker
 from typing import Tuple
 import os
@@ -41,6 +41,55 @@ def setup_axes(ndim: int) -> Tuple[plt.Figure, Union[plt.Axes, p3.axes3d.Axes3D]
     return fig, ax
 
 
+def set_ax_lims(rwalkers: List[RandomWalker], ax: Union[plt.Axes, p3.axes3d.Axes3D], ndim: int, nsteps: int, frame: Optional[int] = None) -> None:
+    """
+    Set the axes limits of the plot.
+
+    Parameters:
+    - rwalkers (List[RandomWalker]): List of RandomWalker instances which will be visualised.
+    - ax (Union[plt.Axes, p3]):      The axes on which to plot.
+    - ndim (int):                    The number of dimensions for the walkers.
+    - nsteps (int):                  The number of steps in each random walk.
+    - frame (Optional[int]):         The current frame number. Defaults to None. If none, all positions will be used when
+                                     determining the axes limits.
+    """
+    # If not animating then take all positions
+    if frame is None:
+        frame = nsteps
+
+    # Get list of positions for each walker
+    positions = [rwalker.track()[:frame + 1] for rwalker in rwalkers]
+
+    if ndim == 1:
+        # Place the x values of all walkers in a list
+        x = [p[0] for pos in positions for p in pos]
+
+        # x-axis depends on the number of steps, y-axis on maximum and minimum of the x values
+        ax.set_xlim(0, frame + 1)
+        ax.set_ylim(min(x) - 1, max(x) + 1)
+    elif ndim == 2:
+        # Place the x, y values of all walkers in lists
+        x = [p[0] for pos in positions for p in pos]
+        y = [p[1] for pos in positions for p in pos]
+
+        # x-axis depends on maximum and minimum of the x values,
+        # y-axis on maximum and minimum of the y values
+        ax.set_xlim(min(x) - 1, max(x) + 1)
+        ax.set_ylim(min(y) - 1, max(y) + 1)
+    elif ndim == 3:
+        # Place the x, y, z values of all walkers in lists
+        x = [p[0] for pos in positions for p in pos]
+        y = [p[1] for pos in positions for p in pos]
+        z = [p[2] for pos in positions for p in pos]
+
+        # x-axis depends on maximum and minimum of the x values,
+        # y-axis on maximum and minimum of the y values,
+        # z-axis on maximum and minimum of the z values
+        ax.set_xlim(min(x) - 1, max(x) + 1)
+        ax.set_ylim(min(y) - 1, max(y) + 1)
+        ax.set_zlim(min(z) - 1, max(z) + 1)
+
+
 def save_fig(fig: plt.Figure, ndim: int, name: str) -> None:
     """
     Save the resulting figure to a file.
@@ -55,7 +104,7 @@ def save_fig(fig: plt.Figure, ndim: int, name: str) -> None:
     fig.savefig(os.path.join(path, f"{name}.png"), dpi=200)
 
 
-def update(frame: int, ax: Union[plt.Axes, p3.axes3d.Axes3D], rwalkers: List[RandomWalker], stable_lims: bool) -> List[Union[matplotlib.lines.Line2D, mpl_toolkits.mplot3d.art3d.Line3D]]:
+def update(frame: int, ax: Union[plt.Axes, p3.axes3d.Axes3D], rwalkers: List[RandomWalker], stable_lims: bool, ndim: int, nsteps: int) -> List[Union[matplotlib.lines.Line2D, mpl_toolkits.mplot3d.art3d.Line3D]]:
     """
     Update function for the animation. Called by Matplotlib's FuncAnimation to update the plot for each frame of the
     animation.
@@ -65,6 +114,8 @@ def update(frame: int, ax: Union[plt.Axes, p3.axes3d.Axes3D], rwalkers: List[Ran
     - ax (Union[plt.Axes, p3.axes3d.Axes3D]): The axes on which to plot.
     - rwalkers (List[RandomWalker]):          List of RandomWalker instances to visualize.
     - stable_lims (bool):                     Whether to keep the axes limits constant when animating or not.
+    - ndim (int):                             The number of dimensions for the walkers.
+    - nsteps (int):                           The number of steps in each random walk.
 
     Returns:
     - List[Union[matplotlib.lines.Line2D, mpl_toolkits.mplot3d.art3d.Line3D]]: List of artists representing the plotted
@@ -73,8 +124,11 @@ def update(frame: int, ax: Union[plt.Axes, p3.axes3d.Axes3D], rwalkers: List[Ran
     artists = []
 
     for rwalker in rwalkers:
-        rwalker.plot_track(ax, frame, stable_lims)
+        rwalker.plot_track(ax, frame)
         artists.extend(ax.lines)
+
+    if not stable_lims:
+        set_ax_lims(rwalkers, ax, ndim, nsteps, frame)
 
     return artists
 
@@ -90,14 +144,20 @@ def run_animation(rwalkers: List[RandomWalker], ndim: int, nsteps: int, stable_l
     - stable_lims (bool):            Whether to keep the axes limits constant when animating or not.
     - save (bool):                   Whether to save the resulting figure to a file.
     - name (string):                 Name of the file to save
+
+    Returns:
+    Tuple[FuncAnimation, plt.Figure]: The animation object and the figure where it is plotted.
     """
     fig, ax = setup_axes(ndim)
+
+    if stable_lims:
+        set_ax_lims(rwalkers, ax, ndim, nsteps)
 
     # Run the animation
     animation = FuncAnimation(
         fig,
         update,
-        fargs=(ax, rwalkers, stable_lims),
+        fargs=(ax, rwalkers, stable_lims, ndim, nsteps),
         frames=nsteps,
         interval=min(1 / (nsteps * 2), 0.5),
         repeat=False
@@ -109,13 +169,14 @@ def run_animation(rwalkers: List[RandomWalker], ndim: int, nsteps: int, stable_l
     return animation, fig
 
 
-def run_plot(rwalkers: List[RandomWalker], ndim: int, save: bool, name: str) -> plt.Figure:
+def run_plot(rwalkers: List[RandomWalker], ndim: int, nsteps: int, save: bool, name: str) -> plt.Figure:
     """
     Create a static plot of the random walks.
 
     Parameters:
     - rwalkers (List[RandomWalker]): List of RandomWalker instances to visualize.
     - ndim (int):                    The number of dimensions for the walkers.
+    - nsteps (int):                  The number of steps in each random walk.
     - save (bool):                   Whether to save the resulting figure to a file.
     - name (string):                 Name of the file to save
 
@@ -123,6 +184,7 @@ def run_plot(rwalkers: List[RandomWalker], ndim: int, save: bool, name: str) -> 
     - plt.Figure:                    The figure containing the resulting plot.
     """
     fig, ax = setup_axes(ndim)
+    set_ax_lims(rwalkers, ax, ndim, nsteps)
 
     for rwalker in rwalkers:
         rwalker.plot_track(ax)

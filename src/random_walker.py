@@ -173,7 +173,7 @@ class RandomWalker:
         """
         return [tr[0] for tr in self.track_data]
 
-    def plot_track(self, ax: Optional[plt.Axes] = None, frame: Optional[int] = None, stable_lims: Optional[bool] = False) -> None:
+    def plot_track(self, ax: Optional[plt.Axes] = None, frame: Optional[int] = None) -> None:
         """
         Plot the walker's position during each step.
 
@@ -183,7 +183,6 @@ class RandomWalker:
                                         the entire plot is being plotted. If a number is given, the positions visited
                                         during the random walk are cut off up until the corresponding index so that each
                                         step of the animation plots the correct number of points.
-        - stable_lims (Optional[bool]): Whether to keep the axes limits constant when animating. Default is False.
         """
         # If no axis is given to plot on create one
         if ax is None:
@@ -197,19 +196,9 @@ class RandomWalker:
             # Unpack positions
             x = [pos[0] for pos in positions]
 
-            # Set constant axes limits
-            if stable_lims:
-                ax.set_xlim(0, len(x))
-                ax.set_ylim(min(min(x) - 1, ax.get_ylim()[0]), max(max(x) + 1, ax.get_ylim()[1]))
-
             # Filter positions by frame if animating
             if frame is not None:
                 x = x[:frame + 1]
-
-            # Set axes limits according to filtered data if stable_lims = False
-            if not stable_lims:
-                ax.set_xlim(0, len(x))
-                ax.set_ylim(min(min(x) - 1, ax.get_ylim()[0]), max(max(x) + 1, ax.get_ylim()[1]))
 
             # If no line is already present, create it
             if self.line is None:
@@ -226,19 +215,9 @@ class RandomWalker:
             # Unpack positions
             x, y = zip(*positions)
 
-            # Set constant ylim if stable_lims = True
-            if stable_lims:
-                ax.set_xlim(min(min(x) - 1, ax.get_xlim()[0]), max(max(x) + 1, ax.get_xlim()[1]))
-                ax.set_ylim(min(min(y) - 1, ax.get_ylim()[0]), max(max(y) + 1, ax.get_ylim()[1]))
-
             # Filter positions by frame if animating
             if frame is not None:
                 x, y = x[:frame + 1], y[:frame + 1]
-
-            # Set axes limits according to filtered data if stable_lims = False
-            if not stable_lims:
-                ax.set_xlim(min(min(x) - 1, ax.get_xlim()[0]), max(max(x) + 1, ax.get_xlim()[1]))
-                ax.set_ylim(min(min(y) - 1, ax.get_ylim()[0]), max(max(y) + 1, ax.get_ylim()[1]))
 
             # If no line is already present, create it
             if self.line is None:
@@ -255,21 +234,9 @@ class RandomWalker:
             # Unpack positions
             x, y, z = zip(*positions)
 
-            # Set constant ylim if stable_lims = True
-            if stable_lims:
-                ax.set_xlim(min(min(x) - 1, ax.get_xlim()[0]), max(max(x) + 1, ax.get_xlim()[1]))
-                ax.set_ylim(min(min(y) - 1, ax.get_ylim()[0]), max(max(y) + 1, ax.get_ylim()[1]))
-                ax.set_zlim(min(min(z) - 1, ax.get_zlim()[0]), max(max(z) + 1, ax.get_zlim()[1]))
-
             # Filter positions by frame if animating
             if frame is not None:
                 x, y, z = x[:frame + 1], y[:frame + 1], z[:frame + 1]
-
-            # Set axes limits according to filtered data if stable_lims = False
-            if not stable_lims:
-                ax.set_xlim(min(min(x) - 1, ax.get_xlim()[0]), max(max(x) + 1, ax.get_xlim()[1]))
-                ax.set_ylim(min(min(y) - 1, ax.get_ylim()[0]), max(max(y) + 1, ax.get_ylim()[1]))
-                ax.set_zlim(min(min(z) - 1, ax.get_zlim()[0]), max(max(z) + 1, ax.get_zlim()[1]))
 
             # If no line is already present, create it
             if self.line is None:
