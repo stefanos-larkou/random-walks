@@ -50,8 +50,8 @@ def set_ax_lims(rwalkers: List[RandomWalker], ax: Union[plt.Axes, p3.axes3d.Axes
     - ax (Union[plt.Axes, p3]):      The axes on which to plot.
     - ndim (int):                    The number of dimensions for the walkers.
     - nsteps (int):                  The number of steps in each random walk.
-    - frame (Optional[int]):         The current frame number. Defaults to None. If none, all positions will be used when
-                                     determining the axes limits.
+    - frame (Optional[int]):         The current frame number. Defaults to None. If none, all positions will be used
+                                     when determining the axes limits.
     """
     # If not animating then take all positions
     if frame is None:
