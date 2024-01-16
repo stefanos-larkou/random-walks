@@ -12,13 +12,14 @@ from visualisation import run_animation, run_plot
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 
 
-def run_simulations(start: Tuple[float, ...], ndim: int, seed: List[int], nwalkers: int, nsteps: int) -> List[RandomWalker]:
+def run_simulations(start: Tuple[float, ...], ndim: int, allow_diagonals: bool, seed: List[int], nwalkers: int, nsteps: int) -> List[RandomWalker]:
     """
     Run random walker simulations.
 
     Parameters:
     - start (Tuple[float, ...]): The starting position of the walkers.
     - ndim (int):                The number of dimensions for the walkers.
+    - allow_diagonals (bool):    Whether to allow diagonal movements.
     - seed (List[int]):          List of random seeds for reproducibility.
     - nwalkers (int):            The number of random walks to simulate.
     - nsteps (int):              The number of steps in each random walk.
@@ -28,7 +29,7 @@ def run_simulations(start: Tuple[float, ...], ndim: int, seed: List[int], nwalke
     """
     rwalkers = []
     for i in range(nwalkers):
-        rwalker = RandomWalker(start=start, ndim=ndim, seed=seed[i])
+        rwalker = RandomWalker(start=start, ndim=ndim, allow_diagonals=allow_diagonals, seed=seed[i])
         rwalker.random_walk(nsteps)
         rwalkers.append(rwalker)
 
@@ -40,35 +41,36 @@ class App:
     GUI application for the random walk simulation.
 
     Attributes:
-    - root (tk.Tk):                 Tkinter root window.
-    - reproducible (tk.BooleanVar): Whether to set seeds to the random walks for a reproducible result.
-    - stable_lims (tk.BooleanVar):  Whether to keep axes limits constant or not.
-    - ndim (tk.IntVar):             Dimensions of the random walk.
-    - start (tk.StringVar):         Common starting position of the random walks.
-    - seed_start (tk.IntVar):       If reproducible is true, the seeds set to the random walks start from this value and
-                                    increment by 1 for each random walk.
-    - nsteps (tk.IntVar):           The number of steps of the random walks.
-    - nwalkers (tk.IntVar):         The number of RandomWalker instances to create.
-    - animate (tk.BooleanVar):      Whether to create an animation or simply plot the random walks.
-    - save (tk.BooleanVar):         Whether to save the resulting figure to a file.
-    - mame (tk.StringVar):          Name of the file to be saved. Must start and end with alphanumeric characters and
-                                    only whitespaces, hyphens, and underscores are allowed.
+    - root (tk.Tk):                    Tkinter root window.
+    - reproducible (tk.BooleanVar):    Whether to set seeds to the random walks for a reproducible result.
+    - stable_lims (tk.BooleanVar):     Whether to keep axes limits constant or not.
+    - allow_diagonals (tk.BooleanVar): Whether to allow diagonal movements.
+    - ndim (tk.IntVar):                Dimensions of the random walk.
+    - start (tk.StringVar):            Common starting position of the random walks.
+    - seed_start (tk.IntVar):          If reproducible is true, the seeds set to the random walks start from this value
+                                       and increment by 1 for each random walk.
+    - nsteps (tk.IntVar):              The number of steps of the random walks.
+    - nwalkers (tk.IntVar):            The number of RandomWalker instances to create.
+    - animate (tk.BooleanVar):         Whether to create an animation or simply plot the random walks.
+    - save (tk.BooleanVar):            Whether to save the resulting figure to a file.
+    - mame (tk.StringVar):             Name of the file to be saved. Must start and end with alphanumeric characters and
+                                       only whitespaces, hyphens, and underscores are allowed.
 
-    - seed_label (ttk.Label):       Seed input label stored to toggle visibility.
-    - name_label (ttk.Label):       Name input label stored to toggle visibility.
+    - seed_label (ttk.Label):          Seed input label stored to toggle visibility.
+    - name_label (ttk.Label):          Name input label stored to toggle visibility.
 
-    - seed_entry (ttk.Entry):       Seed input stored to toggle visibility.
-    - name_entry (ttk.Entry):       Name input stored to toggle visibility.
-    - ndim_entry (ttk.Entry):       Dimensionality input stored to bind to validation function.
-    - start_entry (ttk.Entry):      Starting position input stored to bind to validation function.
-    - nsteps_entry (ttk.Entry):     Number of steps input stored to bind to validation function.
-    - nwalkers_entry (ttk.Entry):   Number of random walks input stored to bind to validation function.
-    - name_entry (ttk.Entry):       Filename input stored to bind to validation function.
+    - seed_entry (ttk.Entry):          Seed input stored to toggle visibility.
+    - name_entry (ttk.Entry):          Name input stored to toggle visibility.
+    - ndim_entry (ttk.Entry):          Dimensionality input stored to bind to validation function.
+    - start_entry (ttk.Entry):         Starting position input stored to bind to validation function.
+    - nsteps_entry (ttk.Entry):        Number of steps input stored to bind to validation function.
+    - nwalkers_entry (ttk.Entry):      Number of random walks input stored to bind to validation function.
+    - name_entry (ttk.Entry):          Filename input stored to bind to validation function.
 
     - animation (matplotlib.animation.FuncAnimation):
-                                    The animation to be plotted.
+                                       The animation to be plotted.
     - fig (matplotlib.figure.Figure):
-                                    The figure on which the plot will appear
+                                       The figure on which the plot will appear
 
     Methods:
     - create_widgets() -> None:    Create GUI widgets for the random walk parameter input.
@@ -89,6 +91,7 @@ class App:
 
         self.reproducible = tk.BooleanVar(value=True)
         self.stable_lims = tk.BooleanVar(value=True)
+        self.allow_diagonals = tk.BooleanVar(value=False)
         self.ndim = tk.IntVar(value=1)
         self.start = tk.StringVar(value="(0,)")
         self.seed_start = tk.IntVar(value=1)
@@ -120,7 +123,7 @@ class App:
         """
         ttk.Style().configure("TLabel", padding=(0, 8))
         ttk.Style().configure("TButton", padding=(10, 10))
-        self.root.rowconfigure(11, minsize=10)
+        self.root.rowconfigure(12, minsize=10)
 
         ttk.Label(self.root, text="Reproducible:").grid(row=0, column=0, sticky="w")
         ttk.Checkbutton(self.root, variable=self.reproducible, command=self.toggle_seed_entry).grid(row=0, column=1)
@@ -134,40 +137,43 @@ class App:
         ttk.Label(self.root, text="Stable limits:").grid(row=2, column=0, sticky="w")
         ttk.Checkbutton(self.root, variable=self.stable_lims).grid(row=2, column=1)
 
-        ttk.Label(self.root, text="Number of dimensions:").grid(row=3, column=0, sticky="w")
+        ttk.Label(self.root, text="Diagonal movements:").grid(row=3, column=0, sticky="w")
+        ttk.Checkbutton(self.root, variable=self.allow_diagonals).grid(row=3, column=1)
+
+        ttk.Label(self.root, text="Number of dimensions:").grid(row=4, column=0, sticky="w")
         self.ndim_entry = ttk.Entry(self.root, textvariable=self.ndim)
-        self.ndim_entry.grid(row=3, column=1)
+        self.ndim_entry.grid(row=4, column=1)
         self.ndim_entry.bind("<KeyRelease>", lambda event: self.change_start_dim())
         self.ndim_entry.bind("<FocusOut>", lambda event: self._validate_dimensions())
 
-        ttk.Label(self.root, text="Start position:").grid(row=4, column=0, sticky="w")
+        ttk.Label(self.root, text="Start position:").grid(row=5, column=0, sticky="w")
         self.start_entry = ttk.Entry(self.root, textvariable=self.start)
-        self.start_entry.grid(row=4, column=1)
+        self.start_entry.grid(row=5, column=1)
         self.start_entry.bind("<FocusOut>", lambda event: self._validate_start())
 
-        ttk.Label(self.root, text="Number of steps:").grid(row=5, column=0, sticky="w")
+        ttk.Label(self.root, text="Number of steps:").grid(row=6, column=0, sticky="w")
         self.nsteps_entry = ttk.Entry(self.root, textvariable=self.nsteps)
-        self.nsteps_entry.grid(row=5, column=1)
+        self.nsteps_entry.grid(row=6, column=1)
         self.nsteps_entry.bind("<FocusOut>", lambda event: self._validate_positive_int(self.nsteps.get(), "Number of steps ", self.nsteps_entry))
 
-        ttk.Label(self.root, text="Number of walkers:").grid(row=6, column=0, sticky="w")
+        ttk.Label(self.root, text="Number of walkers:").grid(row=7, column=0, sticky="w")
         self.nwalkers_entry = ttk.Entry(self.root, textvariable=self.nwalkers)
-        self.nwalkers_entry.grid(row=6, column=1)
+        self.nwalkers_entry.grid(row=7, column=1)
         self.nwalkers_entry.bind("<FocusOut>", lambda event: self._validate_positive_int(self.nwalkers.get(), "Number of walkers ", self.nwalkers_entry))
 
-        ttk.Label(self.root, text="Animate:").grid(row=7, column=0, sticky="w")
-        ttk.Checkbutton(self.root, variable=self.animate).grid(row=7, column=1)
+        ttk.Label(self.root, text="Animate:").grid(row=8, column=0, sticky="w")
+        ttk.Checkbutton(self.root, variable=self.animate).grid(row=8, column=1)
 
-        ttk.Label(self.root, text="Save result:").grid(row=8, column=0, sticky="w")
-        ttk.Checkbutton(self.root, variable=self.save, command=self.toggle_name_entry).grid(row=8, column=1)
+        ttk.Label(self.root, text="Save result:").grid(row=9, column=0, sticky="w")
+        ttk.Checkbutton(self.root, variable=self.save, command=self.toggle_name_entry).grid(row=9, column=1)
 
         self.name_label = ttk.Label(self.root, text="Filename:")
-        self.name_label.grid(row=9, column=0, sticky="w")
+        self.name_label.grid(row=10, column=0, sticky="w")
         self.name_entry = ttk.Entry(self.root, textvariable=self.name)
-        self.name_entry.grid(row=9, column=1)
+        self.name_entry.grid(row=10, column=1)
         self.name_entry.bind("<FocusOut>", lambda event: self._validate_filename())
 
-        ttk.Button(self.root, text="Run Simulations", command=self.run_simulations).grid(row=10, column=0, columnspan=2)
+        ttk.Button(self.root, text="Run Simulations", command=self.run_simulations).grid(row=11, column=0, columnspan=2)
 
         self.name_entry.grid_remove()
         self.name_label.grid_remove()
@@ -223,20 +229,20 @@ class App:
 
             np.random.seed()
             seeds = [i + self.seed_start.get() for i in range(self.nsteps.get())] if self.reproducible.get() else [-1] * self.nsteps.get()
-            rwalkers = run_simulations(eval(self.start.get()), self.ndim.get(), seeds, self.nwalkers.get(), self.nsteps.get())
+            rwalkers = run_simulations(eval(self.start.get()), self.ndim.get(), self.allow_diagonals.get(), seeds, self.nwalkers.get(), self.nsteps.get())
 
             if self.animate.get():
                 if self.fig is not None:
                     plt.close(self.fig)
                 self.animation, self.fig = run_animation(rwalkers, self.ndim.get(), self.nsteps.get(), self.stable_lims.get(), self.save.get(), self.name.get())
                 canvas = FigureCanvasTkAgg(self.fig, master=self.root)
-                canvas.get_tk_widget().grid(row=0, column=2, rowspan=10)
+                canvas.get_tk_widget().grid(row=0, column=2, rowspan=11)
             else:
                 if self.fig is not None:
                     plt.close(self.fig)
                 self.fig = run_plot(rwalkers, self.ndim.get(), self.nsteps.get(), self.save.get(), self.name.get())
                 canvas = FigureCanvasTkAgg(self.fig, master=self.root)
-                canvas.get_tk_widget().grid(row=0, column=2, rowspan=10)
+                canvas.get_tk_widget().grid(row=0, column=2, rowspan=11)
         except tk.TclError:
             messagebox.showerror("Error", "Please enter valid inputs.")
 

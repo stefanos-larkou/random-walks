@@ -1,3 +1,4 @@
+from itertools import product
 import matplotlib.pyplot as plt
 import numpy as np
 from typing import List, Tuple, Optional
@@ -36,15 +37,16 @@ class RandomWalker:
     - track() -> List[Tuple[float, ...]]:                Get a list of positions visited during the random walk.
     - plot_track(ax: Optional[plt.Axes] = None) -> None: Plot the walker's position during each step.
     """
-    def __init__(self, start: Tuple[float, ...], ndim: Optional[int] = 1, seed: Optional[int] = -1) -> None:
+    def __init__(self, start: Tuple[float, ...], ndim: Optional[int] = 1, allow_diagonals: Optional[bool] = False, seed: Optional[int] = -1) -> None:
         """
         Initialise the RandomWalker object.
 
         Parameters:
-        - start (Tuple[float, ...]):       The starting position of the walker.
-        - ndim (Optional[int]):            The number of dimensions for the walker. Default is 1, must be between 1 and
-                                           3 inclusive.
-        - seed (Optional[int]):            The random seed for reproducibility. Default is -1, indicating no seed.
+        - start (Tuple[float, ...]):        The starting position of the walker.
+        - ndim (Optional[int]):             The number of dimensions for the walker. Default is 1, must be between 1 and
+                                            3 inclusive.
+        - allow_diagonals (Optional[bool]): Whether to allow diagonal movements. Default is False.
+        - seed (Optional[int]):             The random seed for reproducibility. Default is -1, indicating no seed.
 
         Attributes:
         - ndim (int):                      The number of dimensions the walker can move in.
@@ -63,6 +65,7 @@ class RandomWalker:
         self.start = np.asarray(start)
         self.track_data.append((start, self.distance_from_origin(start), 0.))
 
+        # Initialise line for plotting
         self.line = None
         self.markers = None
 
@@ -71,12 +74,11 @@ class RandomWalker:
             np.random.seed(seed)
 
         # Set possible movements of the random walk
-        self.offsets = []
-        for i in range(self.ndim):
-            for direction in [1, -1]:
-                offset = [0] * self.ndim
-                offset[i] = direction
-                self.offsets.append(tuple(offset))
+        if allow_diagonals:
+            self.offsets = list(product([-1, 0, 1], repeat=self.ndim))
+            self.offsets.remove(tuple([0] * self.ndim))
+        else:
+            self.offsets = [tuple([0 if j != i else direction for j in range(self.ndim)]) for direction in [1, -1] for i in range(self.ndim)]
 
     def _check_valid_position(self, position: Tuple[float, ...]) -> None:
         """
