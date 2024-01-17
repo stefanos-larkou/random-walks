@@ -4,13 +4,13 @@ import re
 import numpy as np
 from matplotlib import pyplot as plt
 import matplotlib.style as mplstyle
+from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 import tkinter as tk
 from tkinter import ttk, messagebox
 import TKinterModernThemes as TKMT
 from typing import List, Tuple
 from random_walker import RandomWalker
-from visualisation import run_animation, run_plot
-from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
+from visualisation import run_animation, run_plot, plot_distance_hist, plot_distance_meshgrid
 
 
 def run_simulations(start: Tuple[float, ...], ndim: int, allow_diagonals: bool, seed: List[int], nwalkers: int, nsteps: int) -> List[RandomWalker]:
@@ -60,6 +60,7 @@ class App:
                                        only whitespaces, hyphens, and underscores are allowed.
 
     - seed_label (ttk.Label):          Seed input label stored to toggle visibility.
+    - stable_lims_label (ttk.Label):   Stable limits input label stored to toggle visibility.
     - name_label (ttk.Label):          Name input label stored to toggle visibility.
 
     - seed_entry (ttk.Entry):          Seed input stored to toggle visibility.
@@ -69,21 +70,35 @@ class App:
     - nsteps_entry (ttk.Entry):        Number of steps input stored to bind to validation function.
     - nwalkers_entry (ttk.Entry):      Number of random walks input stored to bind to validation function.
     - style_combobox (ttk.Combobox):   Style input stored to bind to validation function.
+    - stable_lims_checkbutton (ttk.Checkbutton):
+                                       Stable limits input stored to toggle visibility.
     - name_entry (ttk.Entry):          Filename input stored to bind to validation function.
 
     - styles (List[str]):              List of matplotlib styles
-    - canvas (matplotlib.backends.backend_tkagg.FigureCanvasTkAgg):
-                                       Canvas to be added to the grid containing the plotted figure.
     - animation (matplotlib.animation.FuncAnimation):
                                        The animation to be plotted.
     - fig (matplotlib.figure.Figure):
                                        The figure on which the plot will appear.
+    - canvas (matplotlib.backends.backend_tkagg.FigureCanvasTkAgg):
+                                       Canvas to be added to the grid containing the plotted figure.
+    - mesh_fig (matplotlib.figure.Figure):
+                                       The figure on which the meshgrid will appear.
+    - mesh_canvas (matplotlib.backends.backend_tkagg.FigureCanvasTkAgg):
+                                       Canvas to be added to the grid containing the meshgrid of distances of the random
+                                       walk simulation.
+    - hist_fig (matplotlib.figure.Figure):
+                                       The figure on which the histogram will appear.
+    - hist_canvas (matplotlib.backends.backend_tkagg.FigureCanvasTkAgg):
+                                       Canvas to be added to the grid containing the histogram of final distances of the
+                                       random walk simulation.
 
     Methods:
     - create_widgets() -> None:    Create GUI widgets for the random walk parameter input.
     - set_min_win_size() -> None:  Set the minimum size of the window.
     - change_start_dim() -> None:  Change default value of the starting positions based on the number of dimensions.
     - toggle_seed_entry() -> None: Toggle visibility of seed input based on the reproducibility checkbox.
+    - toggle_stable_lims_checkbutton() -> None:
+                                   Toggle visibility of the stable axes limits checkbox.
     - toggle_name_entry() -> None: Toggle visibility of filename input based on the save result checkbox.
     - run_simulations() -> None:   Perform some input validation and run random walker simulations based on user input.
     """
@@ -114,6 +129,7 @@ class App:
 
         # Initialise input objects that need to be stored
         self.seed_label = None
+        self.stable_lims_label = None
         self.name_label = None
         self.ndim_entry = None
         self.start_entry = None
@@ -121,15 +137,21 @@ class App:
         self.nsteps_entry = None
         self.nwalkers_entry = None
         self.style_combobox = None
+        self.stable_lims_checkbutton = None
         self.name_entry = None
 
         # Plotting related attributes
         self.styles = [style for style in mplstyle.available if not style.startswith("_")]
         self.styles.sort(key=lambda x: str(x).lower())
         self.styles.insert(0, "default")
-        self.canvas = None
+
         self.animation = None
         self.fig = None
+        self.canvas = None
+        self.mesh_fig = None
+        self.mesh_canvas = None
+        self.hist_fig = None
+        self.hist_canvas = None
 
         # Set up widgets
         self.create_widgets()
@@ -140,49 +162,51 @@ class App:
         to focus on something else.
         """
         # Set up widgets, add bindings to validation and toggling functions
-        ttk.Label(self.root, text="Reproducible:").grid(row=0, column=0, sticky="w", padx=(10, 0))
-        ttk.Checkbutton(self.root, variable=self.reproducible, command=self.toggle_seed_entry).grid(row=0, column=1, padx=(5, 10))
-
-        self.seed_label = ttk.Label(self.root, text="Seed start:")
-        self.seed_label.grid(row=1, column=0, sticky="w", padx=(10, 0))
-        self.seed_entry = ttk.Entry(self.root, textvariable=self.seed_start)
-        self.seed_entry.grid(row=1, column=1, padx=(5, 10))
-        self.seed_entry.bind("<FocusOut>", lambda event: self._validate_positive_int(self.seed_start, "Starting seed value ", self.seed_entry))
-
-        ttk.Label(self.root, text="Stable limits:").grid(row=2, column=0, sticky="w", padx=(10, 0))
-        ttk.Checkbutton(self.root, variable=self.stable_lims).grid(row=2, column=1, padx=(5, 10))
-
-        ttk.Label(self.root, text="Diagonal movements:").grid(row=3, column=0, sticky="w", padx=(10, 0))
-        ttk.Checkbutton(self.root, variable=self.allow_diagonals).grid(row=3, column=1, padx=(5, 10))
-
-        ttk.Label(self.root, text="Number of dimensions:").grid(row=4, column=0, sticky="w", padx=(10, 0))
+        ttk.Label(self.root, text="Number of dimensions:").grid(row=0, column=0, sticky="w", padx=(10, 0))
         self.ndim_entry = ttk.Entry(self.root, textvariable=self.ndim)
-        self.ndim_entry.grid(row=4, column=1, padx=(5, 10))
+        self.ndim_entry.grid(row=0, column=1, padx=(5, 10))
         self.ndim_entry.bind("<KeyRelease>", lambda event: self.change_start_dim())
         self.ndim_entry.bind("<FocusOut>", lambda event: self._validate_dimensions())
 
-        ttk.Label(self.root, text="Start position:").grid(row=5, column=0, sticky="w", padx=(10, 0))
+        ttk.Label(self.root, text="Start position:").grid(row=1, column=0, sticky="w", padx=(10, 0))
         self.start_entry = ttk.Entry(self.root, textvariable=self.start)
-        self.start_entry.grid(row=5, column=1, padx=(5, 10))
+        self.start_entry.grid(row=1, column=1, padx=(5, 10))
         self.start_entry.bind("<FocusOut>", lambda event: self._validate_start())
 
-        ttk.Label(self.root, text="Number of steps:").grid(row=6, column=0, sticky="w", padx=(10, 0))
+        ttk.Label(self.root, text="Number of steps:").grid(row=2, column=0, sticky="w", padx=(10, 0))
         self.nsteps_entry = ttk.Entry(self.root, textvariable=self.nsteps)
-        self.nsteps_entry.grid(row=6, column=1, padx=(5, 10))
+        self.nsteps_entry.grid(row=2, column=1, padx=(5, 10))
         self.nsteps_entry.bind("<FocusOut>", lambda event: self._validate_positive_int(self.nsteps, "Number of steps ", self.nsteps_entry))
 
-        ttk.Label(self.root, text="Number of walkers:").grid(row=7, column=0, sticky="w", padx=(10, 0))
+        ttk.Label(self.root, text="Number of walkers:").grid(row=3, column=0, sticky="w", padx=(10, 0))
         self.nwalkers_entry = ttk.Entry(self.root, textvariable=self.nwalkers)
-        self.nwalkers_entry.grid(row=7, column=1, padx=(5, 10))
+        self.nwalkers_entry.grid(row=3, column=1, padx=(5, 10))
         self.nwalkers_entry.bind("<FocusOut>", lambda event: self._validate_positive_int(self.nwalkers, "Number of walkers ", self.nwalkers_entry))
 
-        ttk.Label(self.root, text="Matplotlib Style:").grid(row=8, column=0, sticky="w", padx=(10, 0))
+        ttk.Label(self.root, text="Matplotlib Style:").grid(row=4, column=0, sticky="w", padx=(10, 0))
         self.style_combobox = ttk.Combobox(self.root, textvariable=self.style, values=self.styles)
-        self.style_combobox.grid(row=8, column=1, padx=(5, 10))
+        self.style_combobox.grid(row=4, column=1, padx=(5, 10))
         self.style_combobox.bind("<FocusOut>", lambda event: self._validate_style())
 
-        ttk.Label(self.root, text="Animate:").grid(row=9, column=0, sticky="w", padx=(10, 0))
-        ttk.Checkbutton(self.root, variable=self.animate).grid(row=9, column=1, padx=(5, 10))
+        ttk.Label(self.root, text="Diagonal movements:").grid(row=5, column=0, sticky="w", padx=(10, 0))
+        ttk.Checkbutton(self.root, variable=self.allow_diagonals).grid(row=5, column=1, padx=(5, 10))
+
+        ttk.Label(self.root, text="Reproducible:").grid(row=6, column=0, sticky="w", padx=(10, 0))
+        ttk.Checkbutton(self.root, variable=self.reproducible, command=self.toggle_seed_entry).grid(row=6, column=1, padx=(5, 10))
+
+        self.seed_label = ttk.Label(self.root, text="Seed start:")
+        self.seed_label.grid(row=7, column=0, sticky="w", padx=(10, 0))
+        self.seed_entry = ttk.Entry(self.root, textvariable=self.seed_start)
+        self.seed_entry.grid(row=7, column=1, padx=(5, 10))
+        self.seed_entry.bind("<FocusOut>", lambda event: self._validate_positive_int(self.seed_start, "Starting seed value ", self.seed_entry))
+
+        ttk.Label(self.root, text="Animate:").grid(row=8, column=0, sticky="w", padx=(10, 0))
+        ttk.Checkbutton(self.root, variable=self.animate, command=self.toggle_stable_lims_checkbutton).grid(row=8, column=1, padx=(5, 10))
+
+        self.stable_lims_label = ttk.Label(self.root, text="Stable limits:")
+        self.stable_lims_label.grid(row=9, column=0, sticky="w", padx=(10, 0))
+        self.stable_lims_checkbutton = ttk.Checkbutton(self.root, variable=self.stable_lims)
+        self.stable_lims_checkbutton.grid(row=9, column=1, padx=(5, 10))
 
         ttk.Label(self.root, text="Save result:").grid(row=10, column=0, sticky="w", padx=(10, 0))
         ttk.Checkbutton(self.root, variable=self.save, command=self.toggle_name_entry).grid(row=10, column=1, padx=(5, 10))
@@ -249,6 +273,18 @@ class App:
             self.seed_label.grid_remove()
             self.seed_start.set(1)
 
+    def toggle_stable_lims_checkbutton(self) -> None:
+        """
+        Toggle visibility of the stable axes limits checkbox.
+        """
+        if self.animate.get():
+            self.stable_lims_checkbutton.grid()
+            self.stable_lims_label.grid()
+        else:
+            self.stable_lims_checkbutton.grid_remove()
+            self.stable_lims_label.grid_remove()
+            self.stable_lims.set(True)
+
     def toggle_name_entry(self) -> None:
         """
         Toggle visibility of filename input based on the save result checkbox.
@@ -285,8 +321,19 @@ class App:
 
             # If something was already plotted, close it
             if self.fig is not None:
+                self.animation = None
                 plt.close(self.fig)
                 self.canvas.get_tk_widget().grid_remove()
+
+            if self.mesh_fig is not None:
+                self.animation = None
+                plt.close(self.mesh_fig)
+                self.mesh_canvas.get_tk_widget().grid_remove()
+
+            if self.hist_fig is not None:
+                self.animation = None
+                plt.close(self.hist_fig)
+                self.hist_canvas.get_tk_widget().grid_remove()
 
             if self.animate.get():
                 # Generate the animation
@@ -295,14 +342,32 @@ class App:
                 # Generate the static plot
                 self.fig = run_plot(rwalkers, self.ndim.get(), self.nsteps.get(), self.save.get(), self.name.get())
 
-            # Place figure in window
+            # Place main figure
+            rowspan = 7 if self.nwalkers.get() >= 5 else 13
             self.canvas = FigureCanvasTkAgg(self.fig, master=self.root)
-            self.canvas.get_tk_widget().grid(row=0, column=2, rowspan=13, padx=8, pady=8)
+            self.canvas.get_tk_widget().grid(row=0, column=2, rowspan=rowspan, padx=8, pady=8, columnspan=2)
             self.canvas.get_tk_widget()["borderwidth"] = 1
             self.canvas.get_tk_widget()["relief"] = "solid"
 
-            # Configure new column
+            if self.nwalkers.get() >= 5:
+                # Place meshgrid
+                self.mesh_fig = plot_distance_meshgrid(rwalkers)
+                self.mesh_canvas = FigureCanvasTkAgg(self.mesh_fig, master=self.root)
+                self.mesh_canvas.get_tk_widget().grid(row=7, column=2, rowspan=6, padx=8, pady=8)
+                self.mesh_canvas.get_tk_widget()["borderwidth"] = 1
+                self.mesh_canvas.get_tk_widget()["relief"] = "solid"
+
+                # Place histogram
+                self.hist_fig = plot_distance_hist(rwalkers)
+                self.hist_canvas = FigureCanvasTkAgg(self.hist_fig, master=self.root)
+                self.hist_canvas.get_tk_widget().grid(row=7, column=3, rowspan=6, padx=8, pady=8)
+                self.hist_canvas.get_tk_widget()["borderwidth"] = 1
+                self.hist_canvas.get_tk_widget()["relief"] = "solid"
+
+            # Configure new columns
             self.root.columnconfigure(2, weight=1)
+            if self.nwalkers.get() >= 5:
+                self.root.columnconfigure(3, weight=1)
 
             # Set minimum window size after a short delay to ensure widgets are rendered
             self.root.maxsize(0, 0)

@@ -1,3 +1,5 @@
+import numpy as np
+from scipy.stats import expon, chisquare
 import matplotlib.lines
 import mpl_toolkits.mplot3d as p3
 import mpl_toolkits.mplot3d.art3d
@@ -195,5 +197,93 @@ def run_plot(rwalkers: List[RandomWalker], ndim: int, nsteps: int, save: bool, n
 
     if save:
         save_fig(fig, ndim, name)
+
+    return fig
+
+
+def plot_distance_hist(rwalkers: List[RandomWalker]) -> plt.Figure:
+    """
+    Plots histogram of walker distances from their starting position and fits the exponential distribution to the data.
+
+    Parameters:
+    - rwalkers (List[RandomWalker]): The random walker instances used for the simulation.
+
+    Returns:
+    matplotlib.figure.Figure: The figure containing the histogram.
+    """
+    # Set up axes
+    fig, ax = plt.subplots()
+    ax.set_title("Distance Histogram")
+    ax.set_xlabel("Euclidian Distance from Starting Position")
+    ax.set_ylabel("Frequency")
+
+    # Extract distance values from the walkers
+    distances = [rwalker.track_data[-1][2] for rwalker in rwalkers]
+
+    # Plot histogram
+    freq, bins, _ = ax.hist(distances, density=True, bins=15, alpha=0.7, color="midnightblue", edgecolor="black", linewidth=1.2)
+
+    # Fit exponential distribution to the data
+    loc, scale = expon.fit(distances)
+    x = np.linspace(0, max(distances), 15)
+    p = expon.pdf(x, loc, scale)
+    ax.plot(x, p, linewidth=2, color="red")
+
+    # Calculate expected exponential distribution
+    pdf = expon.pdf(x, loc, scale)
+
+    # Normalize observed and expected frequencies
+    freq /= np.sum(freq)
+    pdf /= np.sum(pdf)
+
+    # Add a small constant to avoid division by zero
+    pdf += 1e-10
+
+    # Perform chi-square test and add to legend
+    chi_statistic, chi_p_value = chisquare(freq, pdf)
+    legend_handles = [ax.plot([], marker="", linestyle="")[0]]
+    legend_labels = [f"$\\mathrm{{\\chi^2}}$: ${chi_statistic:.3f}$, $\\mathrm{{P}}$-value: ${chi_p_value:.3f}$"]
+    ax.legend(legend_handles, legend_labels)
+
+    return fig
+
+
+def plot_distance_meshgrid(rwalkers: List[RandomWalker]) -> plt.Figure:
+    """
+    Generates a 3D meshgrid to visualize the distribution of distances covered by multiple random walkers
+    over the course of their simulations.
+
+    Parameters:
+    - rwalkers (List[RandomWalker]): The random walker instances used for the simulation.
+
+    Returns:
+    - fig (matplotlib.figure.Figure): The figure containing the meshgrid.
+    """
+    # Set up axes
+    fig = plt.figure()
+    ax = fig.add_subplot(111, projection='3d')
+    ax.set_title("3D Distance Histogram")
+    ax.set_xlabel("Distance from Starting Position")
+    ax.set_ylabel("Walker Index")
+    ax.set_zlabel("Frequency")
+
+    # Extract distance values from the walkers for each step
+    distances = np.array([[step_data[2] for step_data in rwalker.track_data] for rwalker in rwalkers])
+
+    # Generate 2D histogram associating each walker with its distances
+    hist, x_edges, y_edges = np.histogram2d(
+        distances.flatten(),
+        np.repeat(np.arange(distances.shape[0]), distances.shape[1]),
+        bins=20,
+        density=True
+    )
+
+    # Set up 2D meshgrid
+    x_centers = (x_edges[:-1] + x_edges[1:]) / 2
+    y_centers = (y_edges[:-1] + y_edges[1:]) / 2
+    x, y = np.meshgrid(x_centers, y_centers)
+
+    # Plot 3D meshgrid
+    ax.plot_surface(x, y, hist.T, cmap='jet', edgecolor='k')
 
     return fig
