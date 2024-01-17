@@ -15,7 +15,6 @@ Implement random walk simulations using Python. The simulations allow users to v
 - [Usage](#usage)
   - [Main Program](#main-program)
   - [Executable](#executable)
-  - [Examples](#examples)
 - [Dependencies](#dependencies)
 - [License](#license)
 
@@ -23,30 +22,23 @@ Implement random walk simulations using Python. The simulations allow users to v
 
 ```
 Root Directory
-├── images
-│   └── icon.ico
-│
 └── src
-    ├── examples
-    │   ├── animation_example.py
-    │   └── plot_examples.py
+    ├── images
+    │   └── icon.ico
     ├── main.py
     ├── random_walker.py
     └── visualisation.py
 ```
 
 ### Folders
+- **src**: The source code folder.
 - **images**: The GUI's icon is located here. More importantly, when saving a plot, it is placed in a subdirectory that will be created here.
 <br> _Note_: If running the executable, a new directory will be created in the same folder containing the newly saved file.
-- **src**: The source code folder.
-- **examples**: The scripts that demonstrate how to use the RandomWalker class and plot the results are located here.
 
 ### Files
-- **random_walker.py**: Contains the `RandomWalker` class, which is used for simulating a random walk. This class is used in all other files.
-- **animation_example.py**: Example script demonstrating the animation of random walks. The global configuration variables can be modified to change the properties of the simulation.
-- **plot_examples.py**: Example script demonstrating static plots of random walks. The global configuration variables can be modified to change the properties of the simulation.
+- **random_walker.py**: Contains the `RandomWalker` class, which is used for simulating a random walk.
 - **visualisation.py**: Contains functions for setting up the Matplotlib axes, plotting animations and static plots.
-- **main.py**: The main script. It includes a simple GUI built with tkinter for configuring and running the simulation.
+- **main.py**: The main script. It includes a GUI built with tkinter for configuring and running the simulation.
 
 ## Usage
 ### Main Program
@@ -60,12 +52,6 @@ Root Directory
 2. Configure the simulation parameters using the provided inputs.
 3. Click on the "Run Simulations" button.
 4. The animation or static plot of the simulation will appear.
-
-### Examples
-1. Open `animation_example.py` or `plot_examples.py`
-2. Configure the simulation parameters by adjusting the global variables.
-3. Run the script. 
-4. A new window will pop up with the animation or static plot of the simulation.
 
 ## Dependencies
 
