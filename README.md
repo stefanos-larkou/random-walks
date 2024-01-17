@@ -82,7 +82,7 @@ pip install -r requirements.txt
 ```
 
 To install python, see the [official website](https://www.python.org/downloads/)
-<br> _Note_: This application was built on Python 3.11.
+<br> _Note_: This application was built on Python 3.11 and only tested to work on Windows (10).
 
 ## License
 
