@@ -88,7 +88,7 @@ To install python, see the [official website](https://www.python.org/downloads/)
 If you wish to make changes to the code and repackage the app to an executable, use the following commands:
 ```bash
 pip install pyinstaller
-pyinstaller --noconsole --onefile --add-data "src/images;images" --name RWalk --collect-data TKinterModernThemes --collect-data PIL src/main.py
+pyinstaller --noconsole --onefile --add-data "src/icon;icon" --icon=src/icon/icon.ico --name RWalk --collect-data TKinterModernThemes --collect-data PIL src/main.py
 ```
 
 After `RWalk.spec` is created, simply run:
