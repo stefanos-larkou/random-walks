@@ -10,7 +10,7 @@ from tkinter import ttk, messagebox
 import TKinterModernThemes as TKMT
 from typing import List, Tuple
 from random_walker import RandomWalker
-from visualisation import run_animation, run_plot, plot_distance_hist, plot_distance_meshgrid
+from visualisation import run_animation, run_plot, plot_distance_meshgrid, plot_distance_hist
 
 
 def run_simulations(start: Tuple[float, ...], ndim: int, allow_diagonals: bool, seed: List[int], nwalkers: int, nsteps: int) -> List[RandomWalker]:
@@ -297,6 +297,25 @@ class App:
             self.name_label.grid_remove()
             self.name.set("result")
 
+    def add_hist_mesh(self, rwalkers: List[RandomWalker]) -> None:
+        if self.nwalkers.get() >= 5:
+            # Place meshgrid
+            self.mesh_fig = plot_distance_meshgrid(rwalkers, self.ndim.get(), self.save.get(), self.name.get())
+            self.mesh_canvas = FigureCanvasTkAgg(self.mesh_fig, master=self.root)
+            self.mesh_canvas.get_tk_widget().grid(row=7, column=2, rowspan=6, padx=8, pady=8)
+            self.mesh_canvas.get_tk_widget()["borderwidth"] = 1
+            self.mesh_canvas.get_tk_widget()["relief"] = "solid"
+
+            # Place histogram
+            self.hist_fig = plot_distance_hist(rwalkers, self.ndim.get(), self.save.get(), self.name.get())
+            self.hist_canvas = FigureCanvasTkAgg(self.hist_fig, master=self.root)
+            self.hist_canvas.get_tk_widget().grid(row=7, column=3, rowspan=6, padx=8, pady=8)
+            self.hist_canvas.get_tk_widget()["borderwidth"] = 1
+            self.hist_canvas.get_tk_widget()["relief"] = "solid"
+
+            # Configure new column
+            self.root.columnconfigure(3, weight=1)
+
     def run_simulations(self) -> None:
         """
         Perform input validation again and run random walker simulations based on user input.
@@ -321,17 +340,14 @@ class App:
 
             # If something was already plotted, close it
             if self.fig is not None:
-                self.animation = None
                 plt.close(self.fig)
                 self.canvas.get_tk_widget().grid_remove()
 
             if self.mesh_fig is not None:
-                self.animation = None
                 plt.close(self.mesh_fig)
                 self.mesh_canvas.get_tk_widget().grid_remove()
 
             if self.hist_fig is not None:
-                self.animation = None
                 plt.close(self.hist_fig)
                 self.hist_canvas.get_tk_widget().grid_remove()
 
@@ -349,25 +365,11 @@ class App:
             self.canvas.get_tk_widget()["borderwidth"] = 1
             self.canvas.get_tk_widget()["relief"] = "solid"
 
-            if self.nwalkers.get() >= 5:
-                # Place meshgrid
-                self.mesh_fig = plot_distance_meshgrid(rwalkers)
-                self.mesh_canvas = FigureCanvasTkAgg(self.mesh_fig, master=self.root)
-                self.mesh_canvas.get_tk_widget().grid(row=7, column=2, rowspan=6, padx=8, pady=8)
-                self.mesh_canvas.get_tk_widget()["borderwidth"] = 1
-                self.mesh_canvas.get_tk_widget()["relief"] = "solid"
+            # Place mesh and histogram
+            self.add_hist_mesh(rwalkers)
 
-                # Place histogram
-                self.hist_fig = plot_distance_hist(rwalkers)
-                self.hist_canvas = FigureCanvasTkAgg(self.hist_fig, master=self.root)
-                self.hist_canvas.get_tk_widget().grid(row=7, column=3, rowspan=6, padx=8, pady=8)
-                self.hist_canvas.get_tk_widget()["borderwidth"] = 1
-                self.hist_canvas.get_tk_widget()["relief"] = "solid"
-
-            # Configure new columns
+            # Configure new column
             self.root.columnconfigure(2, weight=1)
-            if self.nwalkers.get() >= 5:
-                self.root.columnconfigure(3, weight=1)
 
             # Set minimum window size after a short delay to ensure widgets are rendered
             self.root.maxsize(0, 0)
@@ -475,7 +477,7 @@ class App:
 def main():
     # Determine icon path
     base_dir = getattr(sys, '_MEIPASS', os.path.abspath(os.path.dirname(__file__)))
-    icon_path = os.path.join(base_dir, "images", "icon.ico")
+    icon_path = os.path.join(base_dir, "icon", "icon.ico")
 
     # Setup window
     window = TKMT.ThemedTKinterFrame("Random Walk Simulation", "azure", "light")

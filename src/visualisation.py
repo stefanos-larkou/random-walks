@@ -92,7 +92,7 @@ def set_ax_lims(rwalkers: List[RandomWalker], ax: Union[plt.Axes, p3.axes3d.Axes
         ax.set_zlim(min(z) - 1, max(z) + 1)
 
 
-def save_fig(fig: plt.Figure, ndim: int, name: str) -> None:
+def save_fig(fig: plt.Figure, ndim: int, name: str, figtype: str = "") -> None:
     """
     Save the resulting figure to a file.
 
@@ -100,13 +100,14 @@ def save_fig(fig: plt.Figure, ndim: int, name: str) -> None:
     - fig (plt.Figure): The final figure to be saved.
     - ndim (int):       The number of dimensions of the random walks, used for determining the directory name.
     - name (str):       The filename.
+    - figtype (str):    Suffix for the filename.
     """
-    path = f"images/plots{ndim}d"
+    path = f"images/plots{ndim}d/{name}"
     os.makedirs(path, exist_ok=True)
-    fig.savefig(os.path.join(path, f"{name}.png"), dpi=200)
+    fig.savefig(os.path.join(path, f"{name}{figtype}.png"), dpi=200)
 
 
-def update(frame: int, ax: Union[plt.Axes, p3.axes3d.Axes3D], rwalkers: List[RandomWalker], stable_lims: bool, ndim: int, nsteps: int) -> List[Union[matplotlib.lines.Line2D, mpl_toolkits.mplot3d.art3d.Line3D]]:
+def update(frame: int, fig, ax: Union[plt.Axes, p3.axes3d.Axes3D], rwalkers: List[RandomWalker], stable_lims: bool, ndim: int, nsteps: int, save: bool, name: str) -> List[Union[matplotlib.lines.Line2D, mpl_toolkits.mplot3d.art3d.Line3D]]:
     """
     Update function for the animation. Called by Matplotlib's FuncAnimation to update the plot for each frame of the
     animation.
@@ -118,6 +119,8 @@ def update(frame: int, ax: Union[plt.Axes, p3.axes3d.Axes3D], rwalkers: List[Ran
     - stable_lims (bool):                     Whether to keep the axes limits constant when animating or not.
     - ndim (int):                             The number of dimensions for the walkers.
     - nsteps (int):                           The number of steps in each random walk.
+    - save (bool):                            Whether to save the result.
+    - name (str)                              Filename to give to the saved file.
 
     Returns:
     - List[Union[matplotlib.lines.Line2D, mpl_toolkits.mplot3d.art3d.Line3D]]: List of artists representing the plotted
@@ -133,6 +136,10 @@ def update(frame: int, ax: Union[plt.Axes, p3.axes3d.Axes3D], rwalkers: List[Ran
     # If not constant axes limits, reset them every frame based on "current" data
     if not stable_lims:
         set_ax_lims(rwalkers, ax, ndim, nsteps, frame)
+
+    # If of the final frame, save figure
+    if frame == nsteps - 1 and save:
+        save_fig(fig, ndim, name)
 
     return artists
 
@@ -162,14 +169,11 @@ def run_animation(rwalkers: List[RandomWalker], ndim: int, nsteps: int, stable_l
     animation = FuncAnimation(
         fig,
         update,
-        fargs=(ax, rwalkers, stable_lims, ndim, nsteps),
+        fargs=(fig, ax, rwalkers, stable_lims, ndim, nsteps, save, name),
         frames=nsteps,
         interval=min(1 / (nsteps * 2), 0.5),
         repeat=False
     )
-
-    if save:
-        save_fig(fig, ndim, name)
 
     return animation, fig
 
@@ -183,7 +187,7 @@ def run_plot(rwalkers: List[RandomWalker], ndim: int, nsteps: int, save: bool, n
     - ndim (int):                    The number of dimensions for the walkers.
     - nsteps (int):                  The number of steps in each random walk.
     - save (bool):                   Whether to save the resulting figure to a file.
-    - name (string):                 Name of the file to save
+    - name (string):                 Name of the file to save.
 
     Returns:
     - plt.Figure:                    The figure containing the resulting plot.
@@ -201,12 +205,15 @@ def run_plot(rwalkers: List[RandomWalker], ndim: int, nsteps: int, save: bool, n
     return fig
 
 
-def plot_distance_hist(rwalkers: List[RandomWalker]) -> plt.Figure:
+def plot_distance_hist(rwalkers: List[RandomWalker], ndim: int, save: bool, name: str) -> plt.Figure:
     """
     Plots histogram of walker distances from their starting position and fits the exponential distribution to the data.
 
     Parameters:
     - rwalkers (List[RandomWalker]): The random walker instances used for the simulation.
+    - ndim (int):                    The number of dimensions for the walkers.
+    - save (bool):                   Whether to save the resulting figure to a file.
+    - name (string):                 Name of the file to save.
 
     Returns:
     matplotlib.figure.Figure: The figure containing the histogram.
@@ -227,7 +234,6 @@ def plot_distance_hist(rwalkers: List[RandomWalker]) -> plt.Figure:
     loc, scale = expon.fit(distances)
     x = np.linspace(0, max(distances), 15)
     p = expon.pdf(x, loc, scale)
-    ax.plot(x, p, linewidth=2, color="red")
 
     # Calculate expected exponential distribution
     pdf = expon.pdf(x, loc, scale)
@@ -239,22 +245,29 @@ def plot_distance_hist(rwalkers: List[RandomWalker]) -> plt.Figure:
     # Add a small constant to avoid division by zero
     pdf += 1e-10
 
-    # Perform chi-square test and add to legend
-    chi_statistic, chi_p_value = chisquare(freq, pdf)
-    legend_handles = [ax.plot([], marker="", linestyle="")[0]]
-    legend_labels = [f"$\\mathrm{{\\chi^2}}$: ${chi_statistic:.3f}$, $\\mathrm{{P}}$-value: ${chi_p_value:.3f}$"]
-    ax.legend(legend_handles, legend_labels)
+    # Perform chi-square test
+    chi_sq, _ = chisquare(freq, pdf)
+
+    # Plot fit
+    ax.plot(x, p, linewidth=2, color="red", label=f'Exponential fit\n$\\mathrm{{\\chi^2}}$: ${chi_sq:.2e}$')
+    ax.legend()
+
+    if save:
+        save_fig(fig, ndim, name, "_hist")
 
     return fig
 
 
-def plot_distance_meshgrid(rwalkers: List[RandomWalker]) -> plt.Figure:
+def plot_distance_meshgrid(rwalkers: List[RandomWalker], ndim: int, save: bool, name: str) -> plt.Figure:
     """
     Generates a 3D meshgrid to visualize the distribution of distances covered by multiple random walkers
     over the course of their simulations.
 
     Parameters:
     - rwalkers (List[RandomWalker]): The random walker instances used for the simulation.
+    - ndim (int):                    The number of dimensions for the walkers.
+    - save (bool):                   Whether to save the resulting figure to a file.
+    - name (string):                 Name of the file to save.
 
     Returns:
     - fig (matplotlib.figure.Figure): The figure containing the meshgrid.
@@ -285,5 +298,8 @@ def plot_distance_meshgrid(rwalkers: List[RandomWalker]) -> plt.Figure:
 
     # Plot 3D meshgrid
     ax.plot_surface(x, y, hist.T, cmap='jet', edgecolor='k')
+
+    if save:
+        save_fig(fig, ndim, name, "_mesh")
 
     return fig
