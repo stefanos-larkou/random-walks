@@ -252,9 +252,9 @@ class App:
 
                 # Place figure in window
                 canvas = FigureCanvasTkAgg(self.fig, master=self.root)
-                canvas.get_tk_widget().grid(row=0, column=2, rowspan=12, padx=5, pady=5)
-                canvas.get_tk_widget()['borderwidth'] = 3
-                canvas.get_tk_widget()['relief'] = 'solid'
+                canvas.get_tk_widget().grid(row=0, column=2, rowspan=13, padx=8, pady=8)
+                canvas.get_tk_widget()["borderwidth"] = 1
+                canvas.get_tk_widget()["relief"] = "solid"
             else:
                 # If something was already plotted, close it
                 # Not closing it led to issues with animation
