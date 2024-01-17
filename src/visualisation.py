@@ -219,9 +219,9 @@ def plot_distance_hist(rwalkers: List[RandomWalker], ndim: int, save: bool, name
     matplotlib.figure.Figure: The figure containing the histogram.
     """
     # Set up axes
-    fig, ax = plt.subplots()
+    fig, ax = plt.subplots(figsize=(6, 4))
     ax.set_title("Distance Histogram")
-    ax.set_xlabel("Euclidian Distance from Starting Position")
+    ax.set_xlabel("Euclidian Distance from Start")
     ax.set_ylabel("Frequency")
 
     # Extract distance values from the walkers
@@ -273,10 +273,10 @@ def plot_distance_meshgrid(rwalkers: List[RandomWalker], ndim: int, save: bool, 
     - fig (matplotlib.figure.Figure): The figure containing the meshgrid.
     """
     # Set up axes
-    fig = plt.figure()
-    ax = fig.add_subplot(111, projection='3d')
+    fig = plt.figure(figsize=(6, 4))
+    ax = fig.add_subplot(111, projection="3d")
     ax.set_title("3D Distance Histogram")
-    ax.set_xlabel("Distance from Starting Position")
+    ax.set_xlabel("Euclidian Distance from Start")
     ax.set_ylabel("Walker Index")
     ax.set_zlabel("Frequency")
 
@@ -297,7 +297,7 @@ def plot_distance_meshgrid(rwalkers: List[RandomWalker], ndim: int, save: bool, 
     x, y = np.meshgrid(x_centers, y_centers)
 
     # Plot 3D meshgrid
-    ax.plot_surface(x, y, hist.T, cmap='jet', edgecolor='k')
+    ax.plot_surface(x, y, hist.T, cmap="jet", edgecolor="k")
 
     if save:
         save_fig(fig, ndim, name, "_mesh")

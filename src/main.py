@@ -141,7 +141,7 @@ class App:
         self.name_entry = None
 
         # Plotting related attributes
-        self.styles = [style for style in mplstyle.available if not style.startswith("_")]
+        self.styles = [style for style in mplstyle.available if not (style.startswith("_") or style.endswith("poster"))]
         self.styles.sort(key=lambda x: str(x).lower())
         self.styles.insert(0, "default")
 
@@ -162,7 +162,7 @@ class App:
         to focus on something else.
         """
         # Set up widgets, add bindings to validation and toggling functions
-        ttk.Label(self.root, text="Number of dimensions:").grid(row=0, column=0, sticky="w", padx=(10, 0))
+        ttk.Label(self.root, text="No. of dimensions:").grid(row=0, column=0, sticky="w", padx=(10, 0))
         self.ndim_entry = ttk.Entry(self.root, textvariable=self.ndim)
         self.ndim_entry.grid(row=0, column=1, padx=(5, 10))
         self.ndim_entry.bind("<KeyRelease>", lambda event: self.change_start_dim())
@@ -173,12 +173,12 @@ class App:
         self.start_entry.grid(row=1, column=1, padx=(5, 10))
         self.start_entry.bind("<FocusOut>", lambda event: self._validate_start())
 
-        ttk.Label(self.root, text="Number of steps:").grid(row=2, column=0, sticky="w", padx=(10, 0))
+        ttk.Label(self.root, text="No. of steps:").grid(row=2, column=0, sticky="w", padx=(10, 0))
         self.nsteps_entry = ttk.Entry(self.root, textvariable=self.nsteps)
         self.nsteps_entry.grid(row=2, column=1, padx=(5, 10))
         self.nsteps_entry.bind("<FocusOut>", lambda event: self._validate_positive_int(self.nsteps, "Number of steps ", self.nsteps_entry))
 
-        ttk.Label(self.root, text="Number of walkers:").grid(row=3, column=0, sticky="w", padx=(10, 0))
+        ttk.Label(self.root, text="No. of walkers:").grid(row=3, column=0, sticky="w", padx=(10, 0))
         self.nwalkers_entry = ttk.Entry(self.root, textvariable=self.nwalkers)
         self.nwalkers_entry.grid(row=3, column=1, padx=(5, 10))
         self.nwalkers_entry.bind("<FocusOut>", lambda event: self._validate_positive_int(self.nwalkers, "Number of walkers ", self.nwalkers_entry))
@@ -188,7 +188,7 @@ class App:
         self.style_combobox.grid(row=4, column=1, padx=(5, 10))
         self.style_combobox.bind("<FocusOut>", lambda event: self._validate_style())
 
-        ttk.Label(self.root, text="Diagonal movements:").grid(row=5, column=0, sticky="w", padx=(10, 0))
+        ttk.Label(self.root, text="Diagonal moves:").grid(row=5, column=0, sticky="w", padx=(10, 0))
         ttk.Checkbutton(self.root, variable=self.allow_diagonals).grid(row=5, column=1, padx=(5, 10))
 
         ttk.Label(self.root, text="Reproducible:").grid(row=6, column=0, sticky="w", padx=(10, 0))
@@ -476,7 +476,7 @@ class App:
 
 def main():
     # Determine icon path
-    base_dir = getattr(sys, '_MEIPASS', os.path.abspath(os.path.dirname(__file__)))
+    base_dir = getattr(sys, "_MEIPASS", os.path.abspath(os.path.dirname(__file__)))
     icon_path = os.path.join(base_dir, "icon", "icon.ico")
 
     # Setup window
