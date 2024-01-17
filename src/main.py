@@ -97,7 +97,6 @@ class App:
         # Set root
         self.root = root
         self.root.title("Random Walker Simulation")
-        self.root.resizable(False, False)
 
         # Initialise input values
         self.reproducible = tk.BooleanVar(value=True)
@@ -126,7 +125,7 @@ class App:
 
         # Plotting related attributes
         self.styles = [style for style in mplstyle.available if not style.startswith("_")]
-        self.styles.sort(key=str.lower)
+        self.styles.sort(key=lambda x: str(x).lower())
         self.styles.insert(0, "default")
         self.canvas = None
         self.animation = None
@@ -148,7 +147,7 @@ class App:
         self.seed_label.grid(row=1, column=0, sticky="w", padx=(10, 0))
         self.seed_entry = ttk.Entry(self.root, textvariable=self.seed_start)
         self.seed_entry.grid(row=1, column=1, padx=(5, 10))
-        self.seed_entry.bind("<FocusOut>", lambda event: self._validate_positive_int(self.seed_start.get(), "Starting seed value ", self.seed_entry))
+        self.seed_entry.bind("<FocusOut>", lambda event: self._validate_positive_int(self.seed_start, "Starting seed value ", self.seed_entry))
 
         ttk.Label(self.root, text="Stable limits:").grid(row=2, column=0, sticky="w", padx=(10, 0))
         ttk.Checkbutton(self.root, variable=self.stable_lims).grid(row=2, column=1, padx=(5, 10))
@@ -170,23 +169,23 @@ class App:
         ttk.Label(self.root, text="Number of steps:").grid(row=6, column=0, sticky="w", padx=(10, 0))
         self.nsteps_entry = ttk.Entry(self.root, textvariable=self.nsteps)
         self.nsteps_entry.grid(row=6, column=1, padx=(5, 10))
-        self.nsteps_entry.bind("<FocusOut>", lambda event: self._validate_positive_int(self.nsteps.get(), "Number of steps ", self.nsteps_entry))
+        self.nsteps_entry.bind("<FocusOut>", lambda event: self._validate_positive_int(self.nsteps, "Number of steps ", self.nsteps_entry))
 
         ttk.Label(self.root, text="Number of walkers:").grid(row=7, column=0, sticky="w", padx=(10, 0))
         self.nwalkers_entry = ttk.Entry(self.root, textvariable=self.nwalkers)
         self.nwalkers_entry.grid(row=7, column=1, padx=(5, 10))
-        self.nwalkers_entry.bind("<FocusOut>", lambda event: self._validate_positive_int(self.nwalkers.get(), "Number of walkers ", self.nwalkers_entry))
+        self.nwalkers_entry.bind("<FocusOut>", lambda event: self._validate_positive_int(self.nwalkers, "Number of walkers ", self.nwalkers_entry))
 
-        ttk.Label(self.root, text="Animate:").grid(row=8, column=0, sticky="w", padx=(10, 0))
-        ttk.Checkbutton(self.root, variable=self.animate).grid(row=8, column=1, padx=(5, 10))
-
-        ttk.Label(self.root, text="Save result:").grid(row=9, column=0, sticky="w", padx=(10, 0))
-        ttk.Checkbutton(self.root, variable=self.save, command=self.toggle_name_entry).grid(row=9, column=1, padx=(5, 10))
-
-        ttk.Label(self.root, text="Matplotlib Style:").grid(row=10, column=0, sticky="w", padx=(10, 0))
+        ttk.Label(self.root, text="Matplotlib Style:").grid(row=8, column=0, sticky="w", padx=(10, 0))
         self.style_combobox = ttk.Combobox(self.root, textvariable=self.style, values=self.styles)
-        self.style_combobox.grid(row=10, column=1, padx=(5, 10))
+        self.style_combobox.grid(row=8, column=1, padx=(5, 10))
         self.style_combobox.bind("<FocusOut>", lambda event: self._validate_style())
+
+        ttk.Label(self.root, text="Animate:").grid(row=9, column=0, sticky="w", padx=(10, 0))
+        ttk.Checkbutton(self.root, variable=self.animate).grid(row=9, column=1, padx=(5, 10))
+
+        ttk.Label(self.root, text="Save result:").grid(row=10, column=0, sticky="w", padx=(10, 0))
+        ttk.Checkbutton(self.root, variable=self.save, command=self.toggle_name_entry).grid(row=10, column=1, padx=(5, 10))
 
         self.name_label = ttk.Label(self.root, text="Filename:")
         self.name_label.grid(row=11, column=0, sticky="w", padx=(10, 0))
@@ -213,6 +212,7 @@ class App:
 
         # Set minimum window size after a short delay to ensure widgets are rendered
         self.root.after(100, self.set_min_win_size)
+        self.root.after(100, lambda: self.root.maxsize(width=self.root.winfo_reqwidth(), height=self.root.winfo_reqheight()))
 
     def set_min_win_size(self) -> None:
         """
@@ -247,6 +247,7 @@ class App:
         else:
             self.seed_entry.grid_remove()
             self.seed_label.grid_remove()
+            self.seed_start.set(1)
 
     def toggle_name_entry(self) -> None:
         """
@@ -258,6 +259,7 @@ class App:
         else:
             self.name_entry.grid_remove()
             self.name_label.grid_remove()
+            self.name.set("result")
 
     def run_simulations(self) -> None:
         """
@@ -267,9 +269,9 @@ class App:
             # Run validations again (not really needed)
             if not self._validate_dimensions(): return
             if not self._validate_start(): return
-            if not self._validate_positive_int(self.seed_start.get(), "Starting seed value ", self.seed_entry): return
-            if not self._validate_positive_int(self.nsteps.get(), "Number of steps ", self.nsteps_entry): return
-            if not self._validate_positive_int(self.nwalkers.get(), "Number of walkers ", self.nwalkers_entry): return
+            if not self._validate_positive_int(self.seed_start, "Starting seed value ", self.seed_entry): return
+            if not self._validate_positive_int(self.nsteps, "Number of steps ", self.nsteps_entry): return
+            if not self._validate_positive_int(self.nwalkers, "Number of walkers ", self.nwalkers_entry): return
             if not self._validate_filename(): return
             self._validate_style()
 
@@ -281,43 +283,29 @@ class App:
             # Set Matplotlib style
             plt.style.use(self.style.get())
 
-            if self.animate.get():
-                # If something was already plotted, close it
-                if self.fig is not None:
-                    plt.close(self.fig)
-                    self.canvas.get_tk_widget().grid_remove()
+            # If something was already plotted, close it
+            if self.fig is not None:
+                plt.close(self.fig)
+                self.canvas.get_tk_widget().grid_remove()
 
+            if self.animate.get():
                 # Generate the animation
                 self.animation, self.fig = run_animation(rwalkers, self.ndim.get(), self.nsteps.get(), self.stable_lims.get(), self.save.get(), self.name.get())
-
-                # Place figure in window
-                self.canvas = FigureCanvasTkAgg(self.fig, master=self.root)
-                self.canvas.get_tk_widget().grid(row=0, column=2, rowspan=13, padx=8, pady=8)
-                self.canvas.get_tk_widget()["borderwidth"] = 1
-                self.canvas.get_tk_widget()["relief"] = "solid"
-
-                # Configure new column
-                self.root.columnconfigure(2, weight=1)
             else:
-                # If something was already plotted, close it
-                if self.fig is not None:
-                    plt.close(self.fig)
-                    self.canvas.get_tk_widget().grid_remove()
-
                 # Generate the static plot
                 self.fig = run_plot(rwalkers, self.ndim.get(), self.nsteps.get(), self.save.get(), self.name.get())
 
-                # Place figure in window
-                self.canvas = FigureCanvasTkAgg(self.fig, master=self.root)
-                self.canvas.get_tk_widget().grid(row=0, column=2, rowspan=13, padx=8, pady=8)
-                self.canvas.get_tk_widget()["borderwidth"] = 1
-                self.canvas.get_tk_widget()["relief"] = "solid"
+            # Place figure in window
+            self.canvas = FigureCanvasTkAgg(self.fig, master=self.root)
+            self.canvas.get_tk_widget().grid(row=0, column=2, rowspan=13, padx=8, pady=8)
+            self.canvas.get_tk_widget()["borderwidth"] = 1
+            self.canvas.get_tk_widget()["relief"] = "solid"
 
-                # Configure new column
-                self.root.columnconfigure(2, weight=1)
+            # Configure new column
+            self.root.columnconfigure(2, weight=1)
 
             # Set minimum window size after a short delay to ensure widgets are rendered
-            self.root.resizable(True, True)
+            self.root.maxsize(0, 0)
             self.root.after(100, self.set_min_win_size)
         except tk.TclError:
             # Just in case something went wrong
@@ -331,11 +319,11 @@ class App:
         - bool: True if the number of dimensions is valid, False otherwise.
         """
         try:
-            ndim = int(self.ndim.get())
-            if not 1 <= ndim <= 3:
+            if not (isinstance(self.ndim.get(), int) and 1 <= self.ndim.get() <= 3):
                 messagebox.showerror("Error", "Number of dimensions must be an integer between 1 and 3.")
                 self.ndim_entry.focus_set()
                 return False
+            self.ndim.set(int(self.ndim.get()))
             return True
         except (ValueError, tk.TclError):
             messagebox.showerror("Error", "Number of dimensions must be an integer between 1 and 3.")
@@ -362,24 +350,24 @@ class App:
             return False
 
     @staticmethod
-    def _validate_positive_int(value: int, text: str, entry: tk.Entry) -> bool:
+    def _validate_positive_int(value: tk.IntVar, text: str, entry: tk.Entry) -> bool:
         """
         Ensure an input is a positive integer number.
 
         Parameters:
-        - value (int): Value to validate.
-        - text (str): Text to customise the error message.
-        - entry (tk.Entry): Input on which to focus if the validation fails.
+        - value (tk.IntVar): Value to validate.
+        - text (str):        Text to customise the error message.
+        - entry (tk.Entry):  Input on which to focus if the validation fails.
 
         Returns:
         - bool: True if the value is valid, False otherwise.
         """
         try:
-            value = int(value)
-            if not value > 0:
+            if not (isinstance(value.get(), int) and value.get() > 0):
                 messagebox.showerror("Error", f"{text} must be a positive integer.")
                 entry.focus_set()
                 return False
+            value.set(int(value.get()))
             return True
         except (ValueError, tk.TclError):
             messagebox.showerror("Error", f"{text} must be a positive integer.")
@@ -391,8 +379,7 @@ class App:
         Ensure there is always a valid style in the combobox. If focused out of the combobox with an invalid style,
         reset to default.
         """
-        style = str(self.style.get())
-        if style not in self.styles:
+        if self.style.get() not in self.styles:
             self.style.set("default")
 
     def _validate_filename(self) -> bool:
@@ -404,9 +391,8 @@ class App:
         - bool: True if the filename is valid, False otherwise.
         """
         try:
-            name = str(self.name.get())
             regex = re.compile(r"^[a-zA-Z0-9]([a-zA-Z0-9_ -]*[a-zA-Z0-9])?$")
-            if not regex.match(name):
+            if not regex.match(self.name.get()):
                 messagebox.showerror("Error", "Filename must begin and end with alphanumeric characters. "
                                               "Only whitespaces, hyphens, and underscores are allowed in "
                                               "between.")
