@@ -13,7 +13,7 @@ Implement random walk simulations using Python. The simulations allow users to v
   - [Folders](#folders)
   - [Files](#files)
 - [Usage](#usage)
-  - [Main Program](#main-program)
+  - [Script](#script)
   - [Executable](#executable)
 - [Dependencies](#dependencies)
 - [License](#license)
@@ -41,9 +41,9 @@ Root Directory
 - **main.py**: The main script. It includes a GUI built with tkinter for configuring and running the simulation.
 
 ## Usage
-### Main Program
+### Script
 1. Run `main.py` to launch the GUI.
-2. Configure the simulation parameters.
+2. Configure the simulation parameters using the provided inputs.
 3. Click on the "Run Simulations" button.
 4. The animation or static plot of the simulation will appear.
 
