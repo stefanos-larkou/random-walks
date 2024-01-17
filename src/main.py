@@ -194,7 +194,7 @@ class App:
         self.name_entry.grid(row=11, column=1, padx=(5, 10))
         self.name_entry.bind("<FocusOut>", lambda event: self._validate_filename())
 
-        ttk.Button(self.root, text="Run Simulations", command=self.run_simulations).grid(row=12, column=0, columnspan=2)
+        ttk.Button(self.root, text="Run Simulations", command=self.run_simulations).grid(row=12, column=0, columnspan=2, pady=(10, 0))
 
         # Filename is hidden by default
         self.name_entry.grid_remove()
