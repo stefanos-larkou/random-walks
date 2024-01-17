@@ -12,10 +12,11 @@ Implement random walk simulations using Python. The simulations allow users to v
 - [Project Structure](#project-structure)
   - [Folders](#folders)
   - [Files](#files)
+- [Dependencies](#dependencies)
 - [Usage](#usage)
   - [Script](#script)
   - [Executable](#executable)
-- [Dependencies](#dependencies)
+- [Repackaging Executable](#repackaging-executable)
 - [License](#license)
 
 ## Project Structure
@@ -36,22 +37,9 @@ Root Directory
 <br> _Note_: If running the executable, a new directory will be created in the same folder containing the newly saved file.
 
 ### Files
-- **random_walker.py**: Contains the `RandomWalker` class, which is used for simulating a random walk.
-- **visualisation.py**: Contains functions for setting up the Matplotlib axes, plotting animations and static plots.
-- **main.py**: The main script. It includes a GUI built with tkinter for configuring and running the simulation.
-
-## Usage
-### Script
-1. Run `main.py` to launch the GUI.
-2. Configure the simulation parameters using the provided inputs.
-3. Click on the "Run Simulations" button.
-4. The animation or static plot of the simulation will appear.
-
-### Executable
-1. Open RWalk.exe
-2. Configure the simulation parameters using the provided inputs.
-3. Click on the "Run Simulations" button.
-4. The animation or static plot of the simulation will appear.
+- `random_walker.py`: Contains the `RandomWalker` class, which is used for simulating a random walk.
+- `visualisation.py`: Contains functions for setting up the Matplotlib axes, plotting animations and static plots.
+- `main.py`: The main script. It includes a GUI built with tkinter for configuring and running the simulation.
 
 ## Dependencies
 
@@ -69,6 +57,32 @@ pip install -r requirements.txt
 
 To install python, see the [official website](https://www.python.org/downloads/)
 <br> _Note_: This application was built on Python 3.11 and only tested to work on Windows (10).
+
+
+## Usage
+### Script
+1. Run `main.py` to launch the GUI.
+2. Configure the simulation parameters using the provided inputs.
+3. Click on the "Run Simulations" button.
+4. The animation or static plot of the simulation will appear.
+
+### Executable
+1. Open `RWalk.exe`
+2. Configure the simulation parameters using the provided inputs.
+3. Click on the "Run Simulations" button.
+4. The animation or static plot of the simulation will appear.
+
+## Repackaging Executable
+If you wish to make changes to the code and repackage the app to an executable, use the following commands:
+```bash
+pip install pyinstaller
+pyinstaller --noconsole --onefile --add-data "src/images;images" --name RWalk --collect-data TKinterModernThemes --collect-data PIL src/main.py
+```
+
+After `RWalk.spec` is created, simply run:
+```bash
+pyinstaller RWalk.spec
+```
 
 ## License
 
