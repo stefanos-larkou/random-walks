@@ -97,6 +97,7 @@ class App:
         # Set root
         self.root = root
         self.root.title("Random Walker Simulation")
+        self.root.resizable(False, False)
 
         # Initialise input values
         self.reproducible = tk.BooleanVar(value=True)
@@ -140,57 +141,57 @@ class App:
         to focus on something else.
         """
         # Set up widgets, add bindings to validation and toggling functions
-        ttk.Label(self.root, text="Reproducible:").grid(row=0, column=0, sticky="w", padx=(20, 0))
-        ttk.Checkbutton(self.root, variable=self.reproducible, command=self.toggle_seed_entry).grid(row=0, column=1)
+        ttk.Label(self.root, text="Reproducible:").grid(row=0, column=0, sticky="w", padx=(10, 0))
+        ttk.Checkbutton(self.root, variable=self.reproducible, command=self.toggle_seed_entry).grid(row=0, column=1, padx=(5, 10))
 
         self.seed_label = ttk.Label(self.root, text="Seed start:")
-        self.seed_label.grid(row=1, column=0, sticky="w", padx=(20, 0))
+        self.seed_label.grid(row=1, column=0, sticky="w", padx=(10, 0))
         self.seed_entry = ttk.Entry(self.root, textvariable=self.seed_start)
-        self.seed_entry.grid(row=1, column=1)
+        self.seed_entry.grid(row=1, column=1, padx=(5, 10))
         self.seed_entry.bind("<FocusOut>", lambda event: self._validate_positive_int(self.seed_start.get(), "Starting seed value ", self.seed_entry))
 
-        ttk.Label(self.root, text="Stable limits:").grid(row=2, column=0, sticky="w", padx=(20, 0))
-        ttk.Checkbutton(self.root, variable=self.stable_lims).grid(row=2, column=1)
+        ttk.Label(self.root, text="Stable limits:").grid(row=2, column=0, sticky="w", padx=(10, 0))
+        ttk.Checkbutton(self.root, variable=self.stable_lims).grid(row=2, column=1, padx=(5, 10))
 
-        ttk.Label(self.root, text="Diagonal movements:").grid(row=3, column=0, sticky="w", padx=(20, 0))
-        ttk.Checkbutton(self.root, variable=self.allow_diagonals).grid(row=3, column=1)
+        ttk.Label(self.root, text="Diagonal movements:").grid(row=3, column=0, sticky="w", padx=(10, 0))
+        ttk.Checkbutton(self.root, variable=self.allow_diagonals).grid(row=3, column=1, padx=(5, 10))
 
-        ttk.Label(self.root, text="Number of dimensions:").grid(row=4, column=0, sticky="w", padx=(20, 0))
+        ttk.Label(self.root, text="Number of dimensions:").grid(row=4, column=0, sticky="w", padx=(10, 0))
         self.ndim_entry = ttk.Entry(self.root, textvariable=self.ndim)
-        self.ndim_entry.grid(row=4, column=1)
+        self.ndim_entry.grid(row=4, column=1, padx=(5, 10))
         self.ndim_entry.bind("<KeyRelease>", lambda event: self.change_start_dim())
         self.ndim_entry.bind("<FocusOut>", lambda event: self._validate_dimensions())
 
-        ttk.Label(self.root, text="Start position:").grid(row=5, column=0, sticky="w", padx=(20, 0))
+        ttk.Label(self.root, text="Start position:").grid(row=5, column=0, sticky="w", padx=(10, 0))
         self.start_entry = ttk.Entry(self.root, textvariable=self.start)
-        self.start_entry.grid(row=5, column=1)
+        self.start_entry.grid(row=5, column=1, padx=(5, 10))
         self.start_entry.bind("<FocusOut>", lambda event: self._validate_start())
 
-        ttk.Label(self.root, text="Number of steps:").grid(row=6, column=0, sticky="w", padx=(20, 0))
+        ttk.Label(self.root, text="Number of steps:").grid(row=6, column=0, sticky="w", padx=(10, 0))
         self.nsteps_entry = ttk.Entry(self.root, textvariable=self.nsteps)
-        self.nsteps_entry.grid(row=6, column=1)
+        self.nsteps_entry.grid(row=6, column=1, padx=(5, 10))
         self.nsteps_entry.bind("<FocusOut>", lambda event: self._validate_positive_int(self.nsteps.get(), "Number of steps ", self.nsteps_entry))
 
-        ttk.Label(self.root, text="Number of walkers:").grid(row=7, column=0, sticky="w", padx=(20, 0))
+        ttk.Label(self.root, text="Number of walkers:").grid(row=7, column=0, sticky="w", padx=(10, 0))
         self.nwalkers_entry = ttk.Entry(self.root, textvariable=self.nwalkers)
-        self.nwalkers_entry.grid(row=7, column=1)
+        self.nwalkers_entry.grid(row=7, column=1, padx=(5, 10))
         self.nwalkers_entry.bind("<FocusOut>", lambda event: self._validate_positive_int(self.nwalkers.get(), "Number of walkers ", self.nwalkers_entry))
 
-        ttk.Label(self.root, text="Animate:").grid(row=8, column=0, sticky="w", padx=(20, 0))
-        ttk.Checkbutton(self.root, variable=self.animate).grid(row=8, column=1)
+        ttk.Label(self.root, text="Animate:").grid(row=8, column=0, sticky="w", padx=(10, 0))
+        ttk.Checkbutton(self.root, variable=self.animate).grid(row=8, column=1, padx=(5, 10))
 
-        ttk.Label(self.root, text="Save result:").grid(row=9, column=0, sticky="w", padx=(20, 0))
-        ttk.Checkbutton(self.root, variable=self.save, command=self.toggle_name_entry).grid(row=9, column=1)
+        ttk.Label(self.root, text="Save result:").grid(row=9, column=0, sticky="w", padx=(10, 0))
+        ttk.Checkbutton(self.root, variable=self.save, command=self.toggle_name_entry).grid(row=9, column=1, padx=(5, 10))
 
-        ttk.Label(self.root, text="Matplotlib Style:").grid(row=10, column=0, sticky="w", padx=(20, 0))
+        ttk.Label(self.root, text="Matplotlib Style:").grid(row=10, column=0, sticky="w", padx=(10, 0))
         self.style_combobox = ttk.Combobox(self.root, textvariable=self.style, values=self.styles)
-        self.style_combobox.grid(row=10, column=1)
+        self.style_combobox.grid(row=10, column=1, padx=(5, 10))
         self.style_combobox.bind("<FocusOut>", lambda event: self._validate_style())
 
         self.name_label = ttk.Label(self.root, text="Filename:")
-        self.name_label.grid(row=11, column=0, sticky="w", padx=(20, 0))
+        self.name_label.grid(row=11, column=0, sticky="w", padx=(10, 0))
         self.name_entry = ttk.Entry(self.root, textvariable=self.name)
-        self.name_entry.grid(row=11, column=1)
+        self.name_entry.grid(row=11, column=1, padx=(5, 10))
         self.name_entry.bind("<FocusOut>", lambda event: self._validate_filename())
 
         ttk.Button(self.root, text="Run Simulations", command=self.run_simulations).grid(row=12, column=0, columnspan=2)
@@ -200,7 +201,7 @@ class App:
         self.name_label.grid_remove()
 
         # Generic widget configuration
-        ttk.Style().configure("TLabel", padding=(0, 8))
+        ttk.Style().configure("TLabel", padding=(0, 10))
         ttk.Style().configure("TButton", padding=(10, 10))
 
         # For dynamic resizing
@@ -314,12 +315,13 @@ class App:
 
                 # Configure new column
                 self.root.columnconfigure(2, weight=1)
+
+            # Set minimum window size after a short delay to ensure widgets are rendered
+            self.root.resizable(True, True)
+            self.root.after(100, self.set_min_win_size)
         except tk.TclError:
             # Just in case something went wrong
             messagebox.showerror("Error", "Please enter valid inputs.")
-        finally:
-            # Set minimum window size after a short delay to ensure widgets are rendered
-            self.root.after(100, self.set_min_win_size)
 
     def _validate_dimensions(self) -> bool:
         """
