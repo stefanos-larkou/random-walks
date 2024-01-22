@@ -58,7 +58,6 @@ On top of Python, the project relies on the following external libraries:
 
 - **Matplotlib**: Used for creating the plots.
 - **NumPy**: Used for numerical operations and data structuring.
-- **SciPy**: Used for fitting a line to histograms.
 - **TKinterModernThemes**: Used to give the tkinter GUI a nicer look.
 
 To install the dependencies, you can use the following command:

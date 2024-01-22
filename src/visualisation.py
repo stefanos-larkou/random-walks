@@ -1,5 +1,4 @@
 import numpy as np
-from scipy.stats import expon, chisquare
 import matplotlib.lines
 import mpl_toolkits.mplot3d as p3
 import mpl_toolkits.mplot3d.art3d
@@ -230,26 +229,7 @@ def plot_distance_hist(rwalkers: List[RandomWalker], ndim: int, save: bool, name
     # Plot histogram
     freq, bins, _ = ax.hist(distances, density=True, bins=15, alpha=0.7, color="midnightblue", edgecolor="black", linewidth=1.2)
 
-    # Fit exponential distribution to the data
-    loc, scale = expon.fit(distances)
-    x = np.linspace(0, max(distances), 15)
-    p = expon.pdf(x, loc, scale)
-
-    # Calculate expected exponential distribution
-    pdf = expon.pdf(x, loc, scale)
-
-    # Normalize observed and expected frequencies
     freq /= np.sum(freq)
-    pdf /= np.sum(pdf)
-
-    # Add a small constant to avoid division by zero
-    pdf += 1e-10
-
-    # Perform chi-square test
-    chi_sq, _ = chisquare(freq, pdf)
-
-    # Plot fit
-    ax.plot(x, p, linewidth=2, color="red", label=f'Exponential fit\n$\\mathrm{{\\chi^2}}$: ${chi_sq:.2e}$')
     ax.legend()
 
     if save:
