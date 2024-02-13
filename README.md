@@ -1,6 +1,6 @@
-# Random Walk Simulation
+# RWalk - A Random Walk Simulation Application
 
-Implement random walk simulations using Python. The simulations allow 
+Implement random walk simulations using Python! The simulations allow 
 users to visualize the paths of multiple random walks in one, two, or 
 three dimensions. They can be run as an animation or as a static plot.
 
